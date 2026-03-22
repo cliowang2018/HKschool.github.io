@@ -2,83 +2,1745 @@
 <html lang="zh-HK">
 <head>
 <meta charset="UTF-8">
-<title>香港小學區際游泳查詢系統 (2016-2025) - 按姓名/區查詢</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HKUGAPS 獎項分析系統</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700;900&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
-  body {font-family: "Microsoft YaHei", sans-serif; background:#f9f9f9; padding:20px;}
-  h1 {color:#0066cc;}
-  input, select {padding:12px; margin:5px; font-size:16px; width:220px;}
-  table {width:100%; border-collapse:collapse; margin-top:20px; background:white;}
-  th, td {border:1px solid #ddd; padding:10px; text-align:left;}
-  th {background:#0066cc; color:white;}
-  tr:hover {background:#f0f8ff;}
+  :root {
+    --gold: #C9A84C;
+    --gold-light: #E8D5A0;
+    --gold-dark: #8B6914;
+    --ink: #1A1208;
+    --parchment: #F8F3E8;
+    --parchment-dark: #EDE5D0;
+    --red: #8B1A1A;
+    --red-light: #C44;
+    --jade: #2D6B4A;
+    --jade-light: #3D9B6A;
+    --sky: #1A4A7A;
+    --muted: #6B5D45;
+    --shadow: rgba(26,18,8,0.15);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background: var(--parchment);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  .header {
+    background: linear-gradient(135deg, var(--ink) 0%, #3A2808 100%);
+    padding: 32px 40px 24px;
+    border-bottom: 3px solid var(--gold);
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(201,168,76,0.04) 20px, rgba(201,168,76,0.04) 40px);
+  }
+  .header-inner { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; }
+  .header h1 {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 28px; font-weight: 900;
+    color: var(--gold);
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+  }
+  .header p { color: var(--gold-light); font-size: 13px; font-weight: 300; letter-spacing: 0.1em; }
+  .header-stats {
+    display: flex; gap: 32px; margin-top: 20px; flex-wrap: wrap;
+  }
+  .hstat {
+    text-align: center;
+    border-left: 1px solid rgba(201,168,76,0.3);
+    padding-left: 24px;
+  }
+  .hstat:first-child { border-left: none; padding-left: 0; }
+  .hstat-num { font-family: 'Noto Serif TC', serif; font-size: 24px; font-weight: 700; color: var(--gold); }
+  .hstat-label { font-size: 11px; color: var(--gold-light); opacity: 0.7; margin-top: 2px; }
+
+  /* TABS */
+  .tabs {
+    background: var(--ink);
+    display: flex; gap: 0;
+    overflow-x: auto;
+    border-bottom: 2px solid var(--gold-dark);
+  }
+  .tab {
+    padding: 12px 24px;
+    color: var(--gold-light); opacity: 0.6;
+    cursor: pointer; font-size: 13px;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-weight: 500;
+    border-bottom: 3px solid transparent;
+    white-space: nowrap;
+    transition: all 0.2s;
+    user-select: none;
+    letter-spacing: 0.05em;
+  }
+  .tab:hover { opacity: 0.9; }
+  .tab.active {
+    color: var(--gold);
+    opacity: 1;
+    border-bottom-color: var(--gold);
+    background: rgba(201,168,76,0.08);
+  }
+
+  /* MAIN */
+  .main { max-width: 1200px; margin: 0 auto; padding: 24px 20px; }
+
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* SEARCH PANEL */
+  .search-box {
+    background: white;
+    border: 1px solid var(--gold-light);
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 12px var(--shadow);
+  }
+  .search-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .search-input {
+    flex: 1; min-width: 200px;
+    padding: 10px 16px;
+    border: 1.5px solid var(--gold-light);
+    border-radius: 6px;
+    font-size: 15px;
+    font-family: 'Noto Sans TC', sans-serif;
+    background: var(--parchment);
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-input:focus { border-color: var(--gold); }
+  .btn {
+    padding: 10px 20px;
+    background: var(--gold-dark);
+    color: white;
+    border: none; border-radius: 6px;
+    cursor: pointer; font-size: 13px;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-weight: 700; letter-spacing: 0.05em;
+    transition: background 0.2s;
+  }
+  .btn:hover { background: var(--gold); }
+  .btn-outline {
+    background: transparent;
+    color: var(--gold-dark);
+    border: 1.5px solid var(--gold-dark);
+  }
+  .btn-outline:hover { background: var(--gold-dark); color: white; }
+
+  /* STUDENT PROFILE */
+  .profile-card {
+    background: white;
+    border: 1px solid var(--gold-light);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 16px var(--shadow);
+    margin-bottom: 20px;
+  }
+  .profile-header {
+    background: linear-gradient(135deg, var(--ink), #3A2808);
+    padding: 20px 24px;
+    display: flex; justify-content: space-between; align-items: flex-start;
+    flex-wrap: wrap; gap: 12px;
+  }
+  .profile-name {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 22px; font-weight: 900;
+    color: var(--gold);
+  }
+  .profile-sub { color: var(--gold-light); font-size: 12px; margin-top: 4px; opacity: 0.8; }
+  .profile-badges { display: flex; gap: 8px; flex-wrap: wrap; }
+  .badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 0.05em;
+  }
+  .badge-gold { background: var(--gold); color: var(--ink); }
+  .badge-red { background: var(--red); color: white; }
+  .badge-jade { background: var(--jade); color: white; }
+  .badge-sky { background: var(--sky); color: white; }
+
+  .profile-body { padding: 20px 24px; }
+  .profile-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 20px; }
+  .pstat {
+    text-align: center;
+    background: var(--parchment);
+    border: 1px solid var(--gold-light);
+    border-radius: 8px;
+    padding: 14px 10px;
+  }
+  .pstat-num { font-family: 'Noto Serif TC', serif; font-size: 28px; font-weight: 700; color: var(--gold-dark); }
+  .pstat-label { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+  /* TIMELINE */
+  .timeline { position: relative; padding-left: 28px; }
+  .timeline::before {
+    content: '';
+    position: absolute; left: 8px; top: 0; bottom: 0;
+    width: 2px; background: var(--gold-light);
+  }
+  .timeline-year { margin-bottom: 20px; }
+  .timeline-year-label {
+    position: relative;
+    font-family: 'Noto Serif TC', serif;
+    font-size: 14px; font-weight: 700;
+    color: var(--gold-dark);
+    margin-bottom: 10px;
+  }
+  .timeline-year-label::before {
+    content: '';
+    position: absolute; left: -24px; top: 50%;
+    transform: translateY(-50%);
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: var(--gold);
+    border: 2px solid white;
+    box-shadow: 0 0 0 2px var(--gold);
+  }
+  .award-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .award-chip {
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+  .chip-academic { background: #FEF3C7; color: #92400E; border: 1px solid #FCD34D; }
+  .chip-honour { background: #DBEAFE; color: #1E3A8A; border: 1px solid #93C5FD; }
+  .chip-conduct { background: #D1FAE5; color: #065F46; border: 1px solid #6EE7B7; }
+  .chip-service { background: #FCE7F3; color: #9D174D; border: 1px solid #F9A8D4; }
+  .chip-reading { background: #EDE9FE; color: #4C1D95; border: 1px solid #C4B5FD; }
+  .chip-special { background: #FEE2E2; color: #991B1B; border: 1px solid #FCA5A5; }
+  .chip-scholarship { background: #FEF9C3; color: #713F12; border: 1px solid #FDE047; }
+
+  /* SEARCH RESULTS */
+  .results-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin-top: 16px; }
+  .result-card {
+    background: white;
+    border: 1px solid var(--gold-light);
+    border-radius: 8px;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 1px 4px var(--shadow);
+  }
+  .result-card:hover {
+    border-color: var(--gold);
+    box-shadow: 0 4px 16px var(--shadow);
+    transform: translateY(-1px);
+  }
+  .result-name { font-family: 'Noto Serif TC', serif; font-size: 16px; font-weight: 700; color: var(--ink); }
+  .result-meta { font-size: 11px; color: var(--muted); margin-top: 4px; }
+  .result-count { float: right; font-family: 'Noto Serif TC', serif; font-size: 20px; font-weight: 700; color: var(--gold-dark); }
+
+  /* CLASS ANALYSIS */
+  .section-title {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 18px; font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--gold-light);
+  }
+
+  .year-filter {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px;
+  }
+  .filter-btn {
+    padding: 6px 14px;
+    border: 1.5px solid var(--gold-light);
+    border-radius: 20px;
+    background: white;
+    color: var(--muted);
+    cursor: pointer; font-size: 12px;
+    font-family: 'Noto Sans TC', sans-serif;
+    transition: all 0.2s;
+  }
+  .filter-btn:hover { border-color: var(--gold); color: var(--gold-dark); }
+  .filter-btn.active { background: var(--gold-dark); color: white; border-color: var(--gold-dark); }
+
+  .class-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+  .class-card {
+    background: white;
+    border: 1px solid var(--gold-light);
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 1px 6px var(--shadow);
+    transition: all 0.2s;
+  }
+  .class-card:hover { border-color: var(--gold); box-shadow: 0 4px 16px var(--shadow); }
+  .class-label {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 20px; font-weight: 900;
+    color: var(--gold-dark);
+    margin-bottom: 10px;
+  }
+  .class-bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .class-bar-label { font-size: 10px; color: var(--muted); width: 70px; flex-shrink: 0; }
+  .class-bar-track {
+    flex: 1; height: 6px;
+    background: var(--parchment-dark);
+    border-radius: 3px; overflow: hidden;
+  }
+  .class-bar-fill { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
+  .bar-gold { background: var(--gold); }
+  .bar-red { background: var(--red-light); }
+  .bar-jade { background: var(--jade-light); }
+  .bar-sky { background: #4A9CC8; }
+  .class-bar-val { font-size: 10px; font-weight: 700; color: var(--ink); width: 24px; text-align: right; }
+
+  /* CHART AREA */
+  .chart-container {
+    background: white;
+    border: 1px solid var(--gold-light);
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 1px 6px var(--shadow);
+    margin-bottom: 20px;
+  }
+  .chart-title { font-size: 14px; font-weight: 700; color: var(--ink); margin-bottom: 16px; }
+  .bar-chart { display: flex; align-items: flex-end; gap: 8px; height: 160px; }
+  .bar-col { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; }
+  .bar-col-bar {
+    width: 100%; max-width: 50px;
+    border-radius: 4px 4px 0 0;
+    min-height: 4px;
+    transition: height 0.6s ease;
+    cursor: pointer;
+    position: relative;
+  }
+  .bar-col-bar:hover::after {
+    content: attr(data-tip);
+    position: absolute; bottom: calc(100% + 4px); left: 50%;
+    transform: translateX(-50%);
+    background: var(--ink); color: white;
+    font-size: 11px; padding: 4px 8px; border-radius: 4px;
+    white-space: nowrap; pointer-events: none; z-index: 10;
+  }
+  .bar-col-label { font-size: 10px; color: var(--muted); text-align: center; }
+
+  /* TABLE */
+  .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .data-table th {
+    background: var(--ink);
+    color: var(--gold-light);
+    padding: 10px 12px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 11px; letter-spacing: 0.05em;
+  }
+  .data-table td { padding: 9px 12px; border-bottom: 1px solid var(--parchment-dark); }
+  .data-table tr:hover td { background: var(--parchment); }
+  .data-table tr:nth-child(even) td { background: #FAFAF7; }
+  .data-table tr:nth-child(even):hover td { background: var(--parchment); }
+  .rank-cell { font-family: 'Noto Serif TC', serif; font-weight: 700; color: var(--gold-dark); }
+
+  /* EMPTY / LOADING */
+  .empty { text-align: center; padding: 40px; color: var(--muted); font-size: 14px; }
+  .empty-icon { font-size: 36px; margin-bottom: 12px; }
+
+  /* TWO COL */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 700px) {
+    .two-col { grid-template-columns: 1fr; }
+    .header h1 { font-size: 20px; }
+    .tab { padding: 10px 14px; font-size: 12px; }
+  }
+
+  /* LEADERBOARD */
+  .lb-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--parchment-dark);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .lb-row:hover { background: var(--parchment); }
+  .lb-rank {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 18px; font-weight: 900;
+    color: var(--gold-dark); width: 32px;
+    text-align: center;
+  }
+  .lb-rank.top1 { color: #C9A84C; }
+  .lb-rank.top2 { color: #9A9A9A; }
+  .lb-rank.top3 { color: #8B5E3C; }
+  .lb-name { flex: 1; font-weight: 600; font-size: 14px; }
+  .lb-meta { font-size: 11px; color: var(--muted); }
+  .lb-count { font-family: 'Noto Serif TC', serif; font-size: 20px; font-weight: 700; color: var(--gold-dark); }
+
+  /* scroll fix */
+  .scroll-box { max-height: 400px; overflow-y: auto; border: 1px solid var(--gold-light); border-radius: 8px; background: white; }
+
+  /* pill stats row */
+  .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+  .pill { padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; border: 1.5px solid; }
+
+  .note { font-size: 12px; color: var(--muted); margin-top: 8px; font-style: italic; }
 </style>
 </head>
 <body>
-<h1>🏊‍♀️ 香港小學區際游泳賽果查詢系統 (2016-2025)</h1>
-<p>數據來自官方 PDF • 支持姓名/區/年份即時搜尋 • 包含所有傑出運動員 + 團體冠軍</p>
 
-<div>
-  <input type="text" id="name" placeholder="學生姓名（如邱芷晴）" onkeyup="filter()">
-  <input type="text" id="district" placeholder="區分會（如西貢區）" onkeyup="filter()">
-  <select id="year" onchange="filter()">
-    <option value="">所有年份</option>
-    <option value="2016">2016-2017</option>
-    <option value="2017">2017-2018</option>
-    <option value="2018">2018-2019</option>
-    <option value="2022">2022-2023</option>
-    <option value="2023">2023-2024</option>
-    <option value="2024">2024-2025</option>
-  </select>
+<div class="header">
+  <div class="header-inner">
+    <h1>港大同學會小學 · 獎項分析系統</h1>
+    <p>HKUGAPS Award Analytics · 2021-2022 至 2025-2026 學年</p>
+    <div class="header-stats">
+      <div class="hstat"><div class="hstat-num" id="hstat-years">5</div><div class="hstat-label">學年</div></div>
+      <div class="hstat"><div class="hstat-num" id="hstat-records">—</div><div class="hstat-label">獎項記錄</div></div>
+      <div class="hstat"><div class="hstat-num" id="hstat-students">—</div><div class="hstat-label">獲獎學生</div></div>
+      <div class="hstat"><div class="hstat-num" id="hstat-types">8</div><div class="hstat-label">獎項類別</div></div>
+    </div>
+  </div>
 </div>
 
-<table id="table">
-<thead><tr><th>年份</th><th>組別</th><th>項目</th><th>姓名</th><th>區分會</th><th>成績</th><th>備註</th></tr></thead>
-<tbody id="tbody"></tbody>
-</table>
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('search')">🔍 學生查詢</div>
+  <div class="tab" onclick="switchTab('leaderboard')">🏆 排行榜</div>
+  <div class="tab" onclick="switchTab('class')">📊 班級分析</div>
+  <div class="tab" onclick="switchTab('overview')">📈 全校統計</div>
+</div>
+
+<div class="main">
+
+  <!-- SEARCH TAB -->
+  <div class="section active" id="sec-search">
+    <div class="search-box">
+      <div style="font-size:13px;color:var(--muted);margin-bottom:12px;">輸入學生姓名（中文），查看其獲獎歷程及成長軌跡</div>
+      <div class="search-row">
+        <input class="search-input" id="searchInput" type="text" placeholder="例：田一苡、黃融、鄭文絢…" oninput="onSearchInput()" onkeydown="if(event.key==='Enter')doSearch()">
+        <button class="btn" onclick="doSearch()">查　詢</button>
+        <button class="btn btn-outline" onclick="clearSearch()">清　除</button>
+      </div>
+    </div>
+    <div id="searchResults"></div>
+    <div id="profileArea"></div>
+  </div>
+
+  <!-- LEADERBOARD -->
+  <div class="section" id="sec-leaderboard">
+    <div class="search-box">
+      <div class="year-filter" id="lb-year-filter">
+        <button class="filter-btn active" onclick="lbFilterYear('all',this)">全部學年</button>
+        <button class="filter-btn" onclick="lbFilterYear('2021-2022',this)">2021-22</button>
+        <button class="filter-btn" onclick="lbFilterYear('2022-2023',this)">2022-23</button>
+        <button class="filter-btn" onclick="lbFilterYear('2023-2024',this)">2023-24</button>
+        <button class="filter-btn" onclick="lbFilterYear('2024-2025',this)">2024-25</button>
+        <button class="filter-btn" onclick="lbFilterYear('2025-2026',this)">2025-26</button>
+      </div>
+      <div class="year-filter" id="lb-type-filter">
+        <button class="filter-btn active" onclick="lbFilterType('all',this)">全部獎項</button>
+        <button class="filter-btn" onclick="lbFilterType('學科獎',this)">學科獎</button>
+        <button class="filter-btn" onclick="lbFilterType('學業卓越獎',this)">學業卓越獎</button>
+        <button class="filter-btn" onclick="lbFilterType('良好操行獎',this)">良好操行獎</button>
+        <button class="filter-btn" onclick="lbFilterType('服務獎',this)">服務獎</button>
+        <button class="filter-btn" onclick="lbFilterType('閱讀',this)">閱讀獎</button>
+      </div>
+    </div>
+    <div class="two-col">
+      <div>
+        <div class="section-title">🥇 獲獎最多（前50名）</div>
+        <div class="scroll-box" id="lb-list"></div>
+      </div>
+      <div>
+        <div class="section-title">📋 獎項類型分布</div>
+        <div class="chart-container" id="lb-type-chart"></div>
+        <div class="section-title" style="margin-top:16px;">📅 各學年獲獎人次</div>
+        <div class="chart-container" id="lb-year-chart"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CLASS TAB -->
+  <div class="section" id="sec-class">
+    <div class="search-box">
+      <div style="font-size:13px;color:var(--muted);margin-bottom:12px;">比較各班級（A/B/C/D）在不同學年的獎項表現</div>
+      <div class="year-filter" id="class-year-filter">
+        <button class="filter-btn active" onclick="classFilterYear('all',this)">全部學年</button>
+        <button class="filter-btn" onclick="classFilterYear('2021-2022',this)">2021-22</button>
+        <button class="filter-btn" onclick="classFilterYear('2022-2023',this)">2022-23</button>
+        <button class="filter-btn" onclick="classFilterYear('2023-2024',this)">2023-24</button>
+        <button class="filter-btn" onclick="classFilterYear('2024-2025',this)">2024-25</button>
+        <button class="filter-btn" onclick="classFilterYear('2025-2026',this)">2025-26</button>
+      </div>
+      <div class="year-filter" id="class-grade-filter">
+        <button class="filter-btn active" onclick="classFilterGrade('all',this)">全部年級</button>
+        <button class="filter-btn" onclick="classFilterGrade('1',this)">一年級</button>
+        <button class="filter-btn" onclick="classFilterGrade('2',this)">二年級</button>
+        <button class="filter-btn" onclick="classFilterGrade('3',this)">三年級</button>
+        <button class="filter-btn" onclick="classFilterGrade('4',this)">四年級</button>
+        <button class="filter-btn" onclick="classFilterGrade('5',this)">五年級</button>
+        <button class="filter-btn" onclick="classFilterGrade('6',this)">六年級</button>
+      </div>
+    </div>
+    <div id="class-overview-area"></div>
+    <div class="section-title" style="margin-top:20px;">各班詳細數據</div>
+    <div class="chart-container">
+      <div class="chart-title">學業卓越獎（全級前十名）— 各班比例</div>
+      <div id="honour-chart"></div>
+    </div>
+    <div id="class-detail-area"></div>
+  </div>
+
+  <!-- OVERVIEW TAB -->
+  <div class="section" id="sec-overview">
+    <div class="two-col">
+      <div>
+        <div class="section-title">🎖️ 最常見學科獎得主（學科）</div>
+        <div class="chart-container">
+          <div id="subject-chart"></div>
+        </div>
+        <div class="section-title">📚 高頻獲獎學生（品學兼優 / 年終獎）</div>
+        <div class="scroll-box" id="yearend-list"></div>
+      </div>
+      <div>
+        <div class="section-title">🌟 歷年品學兼優獎得主</div>
+        <div class="scroll-box" id="soty-list"></div>
+        <div class="section-title" style="margin-top:16px;">💰 獎學金得主一覽</div>
+        <div class="scroll-box" id="scholarship-list"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
 
 <script>
-// 全部提取數據（來自你提供的 7 個 PDF）
-const results = [
-  {y:"2017",g:"女子丙組",e:"50米自由泳",n:"邱芷晴",d:"西貢區",t:"30.45",r:"破紀錄"},
-  {y:"2017",g:"女子丙組",e:"50米自由泳",n:"黃森藍",d:"大嶼山區",t:"30.97",r:""},
-  {y:"2017",g:"女子甲組",e:"100米自由泳",n:"劉平兒",d:"港島東區",t:"1:00.01",r:"破紀錄"},
-  {y:"2017",g:"女子甲組",e:"100米自由泳",n:"謝安晴",d:"九龍西區",t:"1:00.83",r:"破紀錄"},
-  {y:"2017",g:"女子乙組",e:"100米自由泳",n:"李思瑤",d:"西貢區",t:"1:04.89",r:"破紀錄"},
-  {y:"2016",g:"女子甲組",e:"50米自由泳",n:"何韻蕊",d:"九龍東區",t:"35.42",r:"破紀錄"},
-  // 2022-2025 團體冠軍（可當「學校」查詢）
-  {y:"2023",g:"女子甲組",e:"團體",n:"九龍南區",d:"",t:"41分",r:"冠軍"},
-  {y:"2023",g:"女子乙組",e:"團體",n:"九龍南區",d:"",t:"40分",r:"冠軍"},
-  {y:"2024",g:"女子甲組",e:"團體",n:"九龍南區",d:"",t:"93分",r:"冠軍"},
-  {y:"2024",g:"女子乙組",e:"團體",n:"九龍南區",d:"",t:"75分",r:"冠軍"},
-  {y:"2025",g:"女子甲組",e:"團體",n:"九龍南區",d:"",t:"80分",r:"冠軍"},
-  {y:"2025",g:"女子乙組",e:"團體",n:"沙田區",d:"",t:"54.5分",r:"冠軍"},
-  // 你可以繼續手動加更多（後面頁有完整前8名，我已提取核心）
-];
+// =========================================================
+// DATA: All awards from PDFs
+// Format: { year, term, type, grade, class, name, detail }
+// =========================================================
+const RAW = [];
 
-function render() {
-  const tbody = document.getElementById("tbody");
-  tbody.innerHTML = "";
-  results.forEach(r => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${r.y}</td><td>${r.g}</td><td>${r.e}</td><td>${r.n}</td><td>${r.d}</td><td>${r.t}</td><td>${r.r}</td>`;
-    tbody.appendChild(tr);
+function add(year, term, type, cls, names, detail='') {
+  const grade = parseInt(cls[0]);
+  const classLetter = cls[1];
+  const arr = Array.isArray(names) ? names : [names];
+  arr.forEach(n => {
+    if(n && n.trim()) RAW.push({year, term, type, grade, classLetter, cls, name: n.trim(), detail});
   });
 }
 
-function filter() {
-  const name = document.getElementById("name").value.toLowerCase();
-  const dist = document.getElementById("district").value.toLowerCase();
-  const yr = document.getElementById("year").value;
-  const rows = document.querySelectorAll("#tbody tr");
-  rows.forEach(row => {
-    const n = row.cells[3].textContent.toLowerCase();
-    const d = row.cells[4].textContent.toLowerCase();
-    const y = row.cells[0].textContent;
-    row.style.display = (n.includes(name) && d.includes(dist) && (!yr || y === yr)) ? "" : "none";
+// ===================== 2021-2022 =====================
+// T1
+add('2021-2022','T1','學科獎','1A',['楊云翕'],'中國語文');
+add('2021-2022','T1','學科獎','1A',['徐若翹'],'英文');
+add('2021-2022','T1','學科獎','1A',['李芷澄'],'數學');
+add('2021-2022','T1','學科獎','1A',['李康喬','黃湛然'],'常識');
+add('2021-2022','T1','學科獎','1B',['孫慧詩'],'中國語文');
+add('2021-2022','T1','學科獎','1B',['王翱陽'],'英文');
+add('2021-2022','T1','學科獎','1B',['丘錦澤'],'數學');
+add('2021-2022','T1','學科獎','1B',['丘錦澤'],'常識');
+add('2021-2022','T1','學科獎','1C',['錢梓沛'],'中國語文');
+add('2021-2022','T1','學科獎','1C',['陳芊予'],'英文');
+add('2021-2022','T1','學科獎','1C',['劉柏希','黃紫芊'],'數學');
+add('2021-2022','T1','學科獎','1C',['蕭苡蕎'],'常識');
+add('2021-2022','T1','學科獎','1D',['施博天'],'中國語文');
+add('2021-2022','T1','學科獎','1D',['方一瑾'],'英文');
+add('2021-2022','T1','學科獎','1D',['陳炫均','朱祉悦','朱笑言'],'數學');
+add('2021-2022','T1','學科獎','1D',['蓋晞民'],'常識');
+add('2021-2022','T1','學科獎','2A',['林昭言'],'中國語文');
+add('2021-2022','T1','學科獎','2A',['關培智'],'英文');
+add('2021-2022','T1','學科獎','2A',['張灝天'],'數學');
+add('2021-2022','T1','學科獎','2A',['陳心悠','羅年殷'],'常識');
+add('2021-2022','T1','學科獎','2B',['何文瀚'],'中國語文');
+add('2021-2022','T1','學科獎','2B',['吳哲昕'],'英文');
+add('2021-2022','T1','學科獎','2B',['邱日希'],'數學');
+add('2021-2022','T1','學科獎','2B',['黃子翹'],'常識');
+add('2021-2022','T1','學科獎','2C',['馬梓銘'],'中國語文');
+add('2021-2022','T1','學科獎','2C',['馬梓銘'],'英文');
+add('2021-2022','T1','學科獎','2C',['王彥博'],'數學');
+add('2021-2022','T1','學科獎','2C',['簡明心'],'常識');
+add('2021-2022','T1','學科獎','2D',['王思清'],'中國語文');
+add('2021-2022','T1','學科獎','2D',['葉秀林'],'英文');
+add('2021-2022','T1','學科獎','2D',['王思清'],'數學');
+add('2021-2022','T1','學科獎','2D',['姜映桐'],'常識');
+add('2021-2022','T1','學科獎','3A',['容思蔚'],'中國語文');
+add('2021-2022','T1','學科獎','3A',['何曉楠','黃雅賢'],'英文');
+add('2021-2022','T1','學科獎','3A',['黃翹焮'],'數學');
+add('2021-2022','T1','學科獎','3A',['黃卓心'],'常識');
+add('2021-2022','T1','學科獎','3B',['梁以正'],'中國語文');
+add('2021-2022','T1','學科獎','3B',['張翠山'],'英文');
+add('2021-2022','T1','學科獎','3B',['張翠山'],'數學');
+add('2021-2022','T1','學科獎','3B',['林千瑜'],'常識');
+add('2021-2022','T1','學科獎','3C',['郭君澄'],'中國語文');
+add('2021-2022','T1','學科獎','3C',['郭君澄'],'英文');
+add('2021-2022','T1','學科獎','3C',['歐陽熹烔'],'數學');
+add('2021-2022','T1','學科獎','3C',['郭君澄'],'常識');
+add('2021-2022','T1','學科獎','3D',['張欣陽'],'中國語文');
+add('2021-2022','T1','學科獎','3D',['陳彥貝'],'英文');
+add('2021-2022','T1','學科獎','3D',['陳綽朗'],'數學');
+add('2021-2022','T1','學科獎','3D',['陳映彤'],'常識');
+add('2021-2022','T1','學科獎','4A',['楊天欣'],'中國語文');
+add('2021-2022','T1','學科獎','4A',['曾天'],'英文');
+add('2021-2022','T1','學科獎','4A',['李俊言'],'數學');
+add('2021-2022','T1','學科獎','4A',['吳梓綸'],'常識');
+add('2021-2022','T1','學科獎','4B',['黃融'],'中國語文');
+add('2021-2022','T1','學科獎','4B',['黃倩炯'],'英文');
+add('2021-2022','T1','學科獎','4B',['黃融'],'數學');
+add('2021-2022','T1','學科獎','4B',['馮學玟','劉庭曦'],'常識');
+add('2021-2022','T1','學科獎','4C',['郭玥希'],'中國語文');
+add('2021-2022','T1','學科獎','4C',['胡琛瑜'],'英文');
+add('2021-2022','T1','學科獎','4C',['潘天仁'],'數學');
+add('2021-2022','T1','學科獎','4C',['鍾穎喬','劉凱桐'],'常識');
+add('2021-2022','T1','學科獎','4D',['潘庭舟'],'中國語文');
+add('2021-2022','T1','學科獎','4D',['姚巧姸'],'英文');
+add('2021-2022','T1','學科獎','4D',['潘朗言'],'數學');
+add('2021-2022','T1','學科獎','4D',['鄭伊彤','吳家希'],'常識');
+add('2021-2022','T1','學科獎','5A',['李天恩'],'中國語文');
+add('2021-2022','T1','學科獎','5A',['邵康瑤'],'英文');
+add('2021-2022','T1','學科獎','5A',['劉思延'],'數學');
+add('2021-2022','T1','學科獎','5A',['邵康瑤'],'常識');
+add('2021-2022','T1','學科獎','5B',['韓展穎'],'中國語文');
+add('2021-2022','T1','學科獎','5B',['羅梓瑤'],'英文');
+add('2021-2022','T1','學科獎','5B',['李漢彥'],'數學');
+add('2021-2022','T1','學科獎','5B',['韓展穎'],'常識');
+add('2021-2022','T1','學科獎','5C',['陳起施'],'中國語文');
+add('2021-2022','T1','學科獎','5C',['葉美詩'],'英文');
+add('2021-2022','T1','學科獎','5C',['嚴泳軒'],'數學');
+add('2021-2022','T1','學科獎','5C',['葉美詩'],'常識');
+add('2021-2022','T1','學科獎','5D',['楊皓'],'中國語文');
+add('2021-2022','T1','學科獎','5D',['鄭文絢'],'英文');
+add('2021-2022','T1','學科獎','5D',['楊皓'],'數學');
+add('2021-2022','T1','學科獎','5D',['楊皓'],'常識');
+add('2021-2022','T1','學科獎','6A',['梁煜塱'],'中國語文');
+add('2021-2022','T1','學科獎','6A',['梁煜塱'],'英文');
+add('2021-2022','T1','學科獎','6A',['郭曉澄'],'數學');
+add('2021-2022','T1','學科獎','6A',['陳諾行'],'常識');
+add('2021-2022','T1','學科獎','6B',['梁穎心'],'中國語文');
+add('2021-2022','T1','學科獎','6B',['陳思希'],'英文');
+add('2021-2022','T1','學科獎','6B',['梁睿'],'數學');
+add('2021-2022','T1','學科獎','6B',['梁穎心'],'常識');
+add('2021-2022','T1','學科獎','6C',['陳卓毅'],'中國語文');
+add('2021-2022','T1','學科獎','6C',['陳卓毅'],'英文');
+add('2021-2022','T1','學科獎','6C',['黃子晴'],'數學');
+add('2021-2022','T1','學科獎','6C',['李沛霖'],'常識');
+add('2021-2022','T1','學科獎','6D',['黃昕'],'中國語文');
+add('2021-2022','T1','學科獎','6D',['黃昕'],'英文');
+add('2021-2022','T1','學科獎','6D',['黃昕'],'數學');
+add('2021-2022','T1','學科獎','6D',['盧柏仲'],'常識');
+
+// T1 Honour List
+['甘倩寧','黎淖琳','李芷澄','黃湛然','楊云翕'].forEach(n=>add('2021-2022','T1','學業卓越獎','1A',[n]));
+['孫慧詩','唐心悦'].forEach(n=>add('2021-2022','T1','學業卓越獎','1B',[n]));
+['錢梓沛','黃紫芊'].forEach(n=>add('2021-2022','T1','學業卓越獎','1C',[n]));
+['施博天'].forEach(n=>add('2021-2022','T1','學業卓越獎','1D',[n]));
+['何文瀚','邱日希'].forEach(n=>add('2021-2022','T1','學業卓越獎','2B',[n]));
+['陳力僑','簡明心','梁芷悠','馬梓銘','蘇一元'].forEach(n=>add('2021-2022','T1','學業卓越獎','2C',[n]));
+['林殷希','馬舜彦','王思清'].forEach(n=>add('2021-2022','T1','學業卓越獎','2D',[n]));
+['李沛謙','黃卓心','容思蔚'].forEach(n=>add('2021-2022','T1','學業卓越獎','3A',[n]));
+['林千瑜','梁以正','吳嘉珩'].forEach(n=>add('2021-2022','T1','學業卓越獎','3B',[n]));
+['歐陽熹烔','郭君澄'].forEach(n=>add('2021-2022','T1','學業卓越獎','3C',[n]));
+['陳彥貝','張欣陽'].forEach(n=>add('2021-2022','T1','學業卓越獎','3D',[n]));
+['吳梓綸'].forEach(n=>add('2021-2022','T1','學業卓越獎','4A',[n]));
+['巫康朴','黃融'].forEach(n=>add('2021-2022','T1','學業卓越獎','4B',[n]));
+['鄭仲揚','鍾穎喬','郭玥希','李樂恩'].forEach(n=>add('2021-2022','T1','學業卓越獎','4C',[n]));
+['歐陽天逸','李君怡','潘朗言'].forEach(n=>add('2021-2022','T1','學業卓越獎','4D',[n]));
+['黃家蕎','李天恩','邵康瑤'].forEach(n=>add('2021-2022','T1','學業卓越獎','5A',[n]));
+['韓展穎','李卓燁','羅梓瑤','謝梓翰'].forEach(n=>add('2021-2022','T1','學業卓越獎','5B',[n]));
+['葉美詩'].forEach(n=>add('2021-2022','T1','學業卓越獎','5C',[n]));
+['鄭文絢','楊皓'].forEach(n=>add('2021-2022','T1','學業卓越獎','5D',[n]));
+['梁煜塱','廖凱忻'].forEach(n=>add('2021-2022','T1','學業卓越獎','6A',[n]));
+['梁穎心','梁睿','楊靖瑄'].forEach(n=>add('2021-2022','T1','學業卓越獎','6B',[n]));
+['陳卓毅','陳梓妍'].forEach(n=>add('2021-2022','T1','學業卓越獎','6C',[n]));
+['黃子珊','盧柏仲','黃昕'].forEach(n=>add('2021-2022','T1','學業卓越獎','6D',[n]));
+
+// T1 Good Conduct
+add('2021-2022','T1','良好操行獎','1A',['周芊雪','甘倩寧']);
+add('2021-2022','T1','良好操行獎','1B',['孫慧詩','王翱陽']);
+add('2021-2022','T1','良好操行獎','1C',['劉柏希','黃紫芊']);
+add('2021-2022','T1','良好操行獎','1D',['張可柔','黃梓韻']);
+add('2021-2022','T1','良好操行獎','2A',['譚逸晴','王樂謙']);
+add('2021-2022','T1','良好操行獎','2B',['陳淽喬','吳懿翹']);
+add('2021-2022','T1','良好操行獎','2C',['呂意德','馬梓銘']);
+add('2021-2022','T1','良好操行獎','2D',['馬舜彦','潘見恩']);
+add('2021-2022','T1','良好操行獎','3A',['張灝心','黃卓心']);
+add('2021-2022','T1','良好操行獎','3B',['李祉穎','梁以正']);
+add('2021-2022','T1','良好操行獎','3C',['潘思辰','徐朗晞']);
+add('2021-2022','T1','良好操行獎','3D',['陳芊豫','張鎧廸']);
+add('2021-2022','T1','良好操行獎','4A',['李雅暄','曾天']);
+add('2021-2022','T1','良好操行獎','4B',['巫康朴','黃融']);
+add('2021-2022','T1','良好操行獎','4C',['郭玥希','潘天仁']);
+add('2021-2022','T1','良好操行獎','4D',['潘朗言','謝忞蓁']);
+add('2021-2022','T1','良好操行獎','5A',['陳深恩','劉嘉寧']);
+add('2021-2022','T1','良好操行獎','5B',['韓展穎','李卓燁']);
+add('2021-2022','T1','良好操行獎','5C',['張睿霖','鄧倬沂']);
+add('2021-2022','T1','良好操行獎','5D',['陳哲雅','黃芷彤']);
+add('2021-2022','T1','良好操行獎','6A',['陳諾行','馬喜兒']);
+add('2021-2022','T1','良好操行獎','6B',['周詠嵐','梁穎心']);
+add('2021-2022','T1','良好操行獎','6C',['鄺依琳','涂卓能']);
+add('2021-2022','T1','良好操行獎','6D',['黃子珊','羅洛峰']);
+
+// T3 2021-2022 key data
+add('2021-2022','T3','學科獎','1A',['楊云翕'],'中國語文');
+add('2021-2022','T3','學科獎','1A',['徐若翹'],'英文');
+add('2021-2022','T3','學科獎','1A',['楊云翕'],'數學');
+add('2021-2022','T3','學科獎','1C',['黃心諾'],'中國語文');
+add('2021-2022','T3','學科獎','1C',['黃紫芊'],'英文');
+add('2021-2022','T3','學科獎','1C',['周卓翹'],'數學');
+add('2021-2022','T3','學科獎','1D',['徐雅南'],'中國語文');
+add('2021-2022','T3','學科獎','1D',['方一瑾'],'英文');
+add('2021-2022','T3','學科獎','1D',['施博天'],'數學');
+add('2021-2022','T3','學科獎','2C',['馬梓銘'],'中國語文');
+add('2021-2022','T3','學科獎','2C',['馬梓銘'],'英文');
+add('2021-2022','T3','學科獎','2C',['蘇一元'],'數學');
+add('2021-2022','T3','學科獎','3B',['林千瑜'],'中國語文');
+add('2021-2022','T3','學科獎','3B',['吳嘉珩'],'英文');
+add('2021-2022','T3','學科獎','3D',['張欣陽'],'中國語文');
+add('2021-2022','T3','學科獎','4B',['馮學玟'],'中國語文');
+add('2021-2022','T3','學科獎','4B',['黃融'],'英文');
+add('2021-2022','T3','學科獎','5A',['黃家蕎'],'中國語文');
+add('2021-2022','T3','學科獎','5B',['韓展穎'],'中國語文');
+add('2021-2022','T3','學科獎','5D',['鄭文絢'],'中國語文');
+add('2021-2022','T3','學科獎','6D',['黃昕'],'中國語文');
+add('2021-2022','T3','學科獎','6D',['黃昕'],'英文');
+add('2021-2022','T3','學科獎','6D',['劉焯蕎'],'數學');
+
+// T3 Honour
+['李芷澄','徐若翹','楊云翕','容朗琋'].forEach(n=>add('2021-2022','T3','學業卓越獎','1A',[n]));
+['關柏思','唐心悦'].forEach(n=>add('2021-2022','T3','學業卓越獎','1B',[n]));
+['黃心諾','黃紫芊'].forEach(n=>add('2021-2022','T3','學業卓越獎','1C',[n]));
+['方一瑾','施博天'].forEach(n=>add('2021-2022','T3','學業卓越獎','1D',[n]));
+['何文瀚','吳懿翹','邱日希'].forEach(n=>add('2021-2022','T3','學業卓越獎','2B',[n]));
+['陳力僑','簡明心','梁芷悠','馬梓銘','蘇一元'].forEach(n=>add('2021-2022','T3','學業卓越獎','2C',[n]));
+['李苑瑩','譚博謙'].forEach(n=>add('2021-2022','T3','學業卓越獎','2D',[n]));
+['李沛謙','容思蔚'].forEach(n=>add('2021-2022','T3','學業卓越獎','3A',[n]));
+['林千瑜','李祉穎','吳嘉珩'].forEach(n=>add('2021-2022','T3','學業卓越獎','3B',[n]));
+['郭君澄','徐朗晞'].forEach(n=>add('2021-2022','T3','學業卓越獎','3C',[n]));
+['陳芊豫','楊皓晴','張欣陽'].forEach(n=>add('2021-2022','T3','學業卓越獎','3D',[n]));
+['馮學玟','林澔正','李禮桓','馬浩榛','吳恩霖','黃融','鍾穎喬','郭玥希'].forEach(n=>add('2021-2022','T3','學業卓越獎','4B',[n]));
+['歐陽天逸','潘庭舟','潘朗言'].forEach(n=>add('2021-2022','T3','學業卓越獎','4D',[n]));
+['黃家蕎','劉嘉寧','劉思延'].forEach(n=>add('2021-2022','T3','學業卓越獎','5A',[n]));
+['韓展穎','羅梓瑤','謝梓翰'].forEach(n=>add('2021-2022','T3','學業卓越獎','5B',[n]));
+['陳睿琛','葉美詩'].forEach(n=>add('2021-2022','T3','學業卓越獎','5C',[n]));
+['陳惟德','鄭文絢'].forEach(n=>add('2021-2022','T3','學業卓越獎','5D',[n]));
+['郭曉澄','梁煜塱'].forEach(n=>add('2021-2022','T3','學業卓越獎','6A',[n]));
+['梁睿','楊靖瑄'].forEach(n=>add('2021-2022','T3','學業卓越獎','6B',[n]));
+['陳卓毅','梁晉顥','馬詩雨'].forEach(n=>add('2021-2022','T3','學業卓越獎','6C',[n]));
+['陳巧湘','杜曜倫','黃子珊','盧柏仲','王小樂','黃昕'].forEach(n=>add('2021-2022','T3','學業卓越獎','6D',[n]));
+
+// Year End 2021-2022
+add('2021-2022','Final','品學兼優獎','1C',['黃紫芊']);
+add('2021-2022','Final','品學兼優獎','1D',['方一瑾','施博天']);
+add('2021-2022','Final','品學兼優獎','2C',['簡明心','梁芷悠','馬梓銘']);
+add('2021-2022','Final','品學兼優獎','3B',['林千瑜']);
+add('2021-2022','Final','品學兼優獎','3C',['郭君澄']);
+add('2021-2022','Final','品學兼優獎','3D',['張欣陽']);
+add('2021-2022','Final','品學兼優獎','4B',['黃融']);
+add('2021-2022','Final','品學兼優獎','4C',['鍾穎喬']);
+add('2021-2022','Final','品學兼優獎','4D',['潘朗言']);
+add('2021-2022','Final','品學兼優獎','5A',['黃家蕎']);
+add('2021-2022','Final','品學兼優獎','5B',['韓展穎','謝梓翰']);
+add('2021-2022','Final','品學兼優獎','6A',['梁煜塱']);
+add('2021-2022','Final','品學兼優獎','6B',['梁睿']);
+add('2021-2022','Final','品學兼優獎','6C',['陳卓毅']);
+add('2021-2022','Final','品學兼優獎','6D',['黃昕']);
+
+add('2021-2022','Final','獎學金','6A',['陳諾行','廖凱忻']);
+add('2021-2022','Final','獎學金','6B',['梁穎心','梁睿','胡朗庭']);
+add('2021-2022','Final','獎學金','6C',['馬詩雨','涂卓能']);
+
+// ===================== 2022-2023 =====================
+// T1 key
+add('2022-2023','T1','學科獎','1B',['袁樂晴'],'中國語文');
+add('2022-2023','T1','學科獎','1C',['田一苡'],'英文');
+add('2022-2023','T1','學科獎','1D',['田一芯'],'中國語文');
+add('2022-2023','T1','學科獎','1D',['田一芯'],'英文');
+add('2022-2023','T1','學科獎','2A',['楊云翕'],'中國語文');
+add('2022-2023','T1','學科獎','2C',['錢梓沛'],'中國語文');
+add('2022-2023','T1','學科獎','2D',['施博天'],'中國語文');
+add('2022-2023','T1','學科獎','2D',['施博天'],'英文');
+add('2022-2023','T1','學科獎','3A',['馬梓銘'],'中國語文');
+add('2022-2023','T1','學科獎','3A',['馬梓銘'],'英文');
+add('2022-2023','T1','學科獎','3B',['梁芷悠'],'中國語文');
+add('2022-2023','T1','學科獎','3B',['梁芷悠'],'英文');
+add('2022-2023','T1','學科獎','3B',['黃子衿'],'數學');
+add('2022-2023','T1','學科獎','3C',['何文瀚'],'中國語文');
+add('2022-2023','T1','學科獎','3D',['董芷慇'],'中國語文');
+add('2022-2023','T1','學科獎','4B',['林千瑜'],'中國語文');
+add('2022-2023','T1','學科獎','4B',['吳嘉珩'],'英文');
+add('2022-2023','T1','學科獎','4D',['張欣陽'],'中國語文');
+add('2022-2023','T1','學科獎','4D',['張欣陽'],'英文');
+add('2022-2023','T1','學科獎','5B',['馮學玟'],'中國語文');
+add('2022-2023','T1','學科獎','5D',['黃融'],'中國語文');
+add('2022-2023','T1','學科獎','5D',['黃融'],'英文');
+add('2022-2023','T1','學科獎','6A',['黃家蕎'],'中國語文');
+add('2022-2023','T1','學科獎','6B',['韓展穎'],'中國語文');
+add('2022-2023','T1','學科獎','6C',['陳睿琛'],'中國語文');
+add('2022-2023','T1','學科獎','6D',['鄭文絢'],'中國語文');
+
+['劉思樂','馬泳琳','吳韵琪','謝竣喬','袁樂晴'].forEach(n=>add('2022-2023','T1','學業卓越獎','1B',[n]));
+['田一苡'].forEach(n=>add('2022-2023','T1','學業卓越獎','1C',[n]));
+['陳臻妍','張海晴','李穎兒','田一芯'].forEach(n=>add('2022-2023','T1','學業卓越獎','1D',[n]));
+['李康喬','葉思言'].forEach(n=>add('2022-2023','T1','學業卓越獎','2A',[n]));
+['鄺子喬','唐心悦'].forEach(n=>add('2022-2023','T1','學業卓越獎','2B',[n]));
+['蕭苡蕎','黃心諾','黃紫芊'].forEach(n=>add('2022-2023','T1','學業卓越獎','2C',[n]));
+['施博天','黃梓韻','朱笑言'].forEach(n=>add('2022-2023','T1','學業卓越獎','2D',[n]));
+['鄭皓軒','馬梓銘'].forEach(n=>add('2022-2023','T1','學業卓越獎','3A',[n]));
+['陳力僑','梁芷悠','黃子衿'].forEach(n=>add('2022-2023','T1','學業卓越獎','3B',[n]));
+['何文瀚','林殷希'].forEach(n=>add('2022-2023','T1','學業卓越獎','3C',[n]));
+['簡明心','蘇一元','董芷慇'].forEach(n=>add('2022-2023','T1','學業卓越獎','3D',[n]));
+['何曉楠','李沛謙'].forEach(n=>add('2022-2023','T1','學業卓越獎','4A',[n]));
+['林千瑜','李祉穎','吳嘉珩','顏駿然'].forEach(n=>add('2022-2023','T1','學業卓越獎','4B',[n]));
+['歐陽熹烔','郭君澄'].forEach(n=>add('2022-2023','T1','學業卓越獎','4C',[n]));
+['陳芊豫','張欣陽'].forEach(n=>add('2022-2023','T1','學業卓越獎','4D',[n]));
+['潘朗言'].forEach(n=>add('2022-2023','T1','學業卓越獎','5A',[n]));
+['歐陽天逸','陳暐承','馮學玟','吳恩霖'].forEach(n=>add('2022-2023','T1','學業卓越獎','5B',[n]));
+['吳采霖','潘晴晴'].forEach(n=>add('2022-2023','T1','學業卓越獎','5C',[n]));
+['盧梓霖','黃融','楊天欣'].forEach(n=>add('2022-2023','T1','學業卓越獎','5D',[n]));
+['陳君鳴','黃家蕎','劉嘉寧'].forEach(n=>add('2022-2023','T1','學業卓越獎','6A',[n]));
+['李卓燁','羅梓瑤','謝梓翰'].forEach(n=>add('2022-2023','T1','學業卓越獎','6B',[n]));
+['陳睿琛','鄧倬沂'].forEach(n=>add('2022-2023','T1','學業卓越獎','6C',[n]));
+['鄭文絢','楊皓'].forEach(n=>add('2022-2023','T1','學業卓越獎','6D',[n]));
+
+// T2 2022-2023
+add('2022-2023','T2','學科獎','1B',['袁樂晴'],'中國語文/英文/數學');
+add('2022-2023','T2','學科獎','1C',['田一苡'],'中國語文/數學');
+add('2022-2023','T2','學科獎','1D',['田一芯'],'中國語文/英文');
+add('2022-2023','T2','學科獎','3A',['馬梓銘'],'中國語文/英文/數學/常識');
+add('2022-2023','T2','學科獎','3B',['梁芷悠'],'中國語文/英文');
+add('2022-2023','T2','學科獎','4B',['吳嘉珩'],'中國語文/英文/常識');
+add('2022-2023','T2','學科獎','4D',['張欣陽'],'中國語文/常識');
+add('2022-2023','T2','學科獎','5B',['馮學玟'],'中國語文/數學/常識');
+add('2022-2023','T2','學科獎','5D',['黃融'],'中國語文/英文/數學/常識');
+add('2022-2023','T2','學科獎','6A',['黃家蕎'],'中國語文');
+add('2022-2023','T2','學科獎','6B',['韓展穎'],'中國語文');
+add('2022-2023','T2','學科獎','6C',['鄧倬沂'],'中國語文');
+add('2022-2023','T2','學科獎','6D',['陳惟德'],'中國語文');
+
+['鄉靖媛','馬泳琳','吳韵琪','葉瀅萱','袁樂晴'].forEach(n=>add('2022-2023','T2','學業卓越獎','1B',[n]));
+['江雋堯','譚泓升','田一苡'].forEach(n=>add('2022-2023','T2','學業卓越獎','1C',[n]));
+['陳臻妍','張海晴','田一芯'].forEach(n=>add('2022-2023','T2','學業卓越獎','1D',[n]));
+['李芷澄','黃湛然','楊云翕'].forEach(n=>add('2022-2023','T2','學業卓越獎','2A',[n]));
+['鄺子喬','孫慧詩'].forEach(n=>add('2022-2023','T2','學業卓越獎','2B',[n]));
+['錢梓沛','蕭苡蕎','黃心諾','黃紫芊'].forEach(n=>add('2022-2023','T2','學業卓越獎','2C',[n]));
+['方一瑾','施博天'].forEach(n=>add('2022-2023','T2','學業卓越獎','2D',[n]));
+['鄭皓軒','馬梓銘'].forEach(n=>add('2022-2023','T2','學業卓越獎','3A',[n]));
+['陳力僑','梁芷悠','黃子衿'].forEach(n=>add('2022-2023','T2','學業卓越獎','3B',[n]));
+['何文瀚','吳懿翹'].forEach(n=>add('2022-2023','T2','學業卓越獎','3C',[n]));
+['趙紫攸','簡明心','蘇一元'].forEach(n=>add('2022-2023','T2','學業卓越獎','3D',[n]));
+['李沛謙'].forEach(n=>add('2022-2023','T2','學業卓越獎','4A',[n]));
+['林千瑜','李祉穎','吳嘉珩','顏駿然'].forEach(n=>add('2022-2023','T2','學業卓越獎','4B',[n]));
+['歐陽熹烔','郭君澄','徐朗晞','黃日熙'].forEach(n=>add('2022-2023','T2','學業卓越獎','4C',[n]));
+['張欣陽'].forEach(n=>add('2022-2023','T2','學業卓越獎','4D',[n]));
+['鄒雨澄','潘朗言'].forEach(n=>add('2022-2023','T2','學業卓越獎','5A',[n]));
+['歐陽天逸','馮學玟'].forEach(n=>add('2022-2023','T2','學業卓越獎','5B',[n]));
+['鍾穎喬','林澔正','潘庭舟'].forEach(n=>add('2022-2023','T2','學業卓越獎','5C',[n]));
+['李俊言','盧梓霖','黃融','楊天欣'].forEach(n=>add('2022-2023','T2','學業卓越獎','5D',[n]));
+['陳君鳴','黃家蕎','駱瑋晴','譚凱天'].forEach(n=>add('2022-2023','T2','學業卓越獎','6A',[n]));
+['陳穎賢','黃子熹'].forEach(n=>add('2022-2023','T2','學業卓越獎','6B',[n]));
+['陳睿琛','鄧倬沂'].forEach(n=>add('2022-2023','T2','學業卓越獎','6C',[n]));
+['陳惟德','鄭文絢'].forEach(n=>add('2022-2023','T2','學業卓越獎','6D',[n]));
+
+// T3 2022-2023
+add('2022-2023','T3','學科獎','1B',['袁樂晴'],'中國語文/英文/數學');
+add('2022-2023','T3','學科獎','1C',['田一苡'],'中國語文/英文');
+add('2022-2023','T3','學科獎','1D',['田一芯'],'中國語文/英文/常識');
+add('2022-2023','T3','學科獎','3A',['鄭皓軒'],'中國語文');
+add('2022-2023','T3','學科獎','3A',['馬梓銘'],'英文/數學/常識');
+add('2022-2023','T3','學科獎','3B',['梁芷悠'],'中國語文/英文');
+add('2022-2023','T3','學科獎','4B',['吳嘉珩'],'中國語文/英文');
+add('2022-2023','T3','學科獎','4D',['張欣陽'],'中國語文/英文');
+add('2022-2023','T3','學科獎','5B',['馮學玟'],'中國語文/常識');
+add('2022-2023','T3','學科獎','5D',['盧梓霖'],'中國語文');
+add('2022-2023','T3','學科獎','6A',['謝凱麒'],'中國語文');
+add('2022-2023','T3','學科獎','6B',['韓展穎'],'中國語文');
+add('2022-2023','T3','學科獎','6C',['鄧倬沂'],'中國語文');
+add('2022-2023','T3','學科獎','6D',['陳晞曈'],'中國語文');
+
+['吳韵琪','袁樂晴'].forEach(n=>add('2022-2023','T3','學業卓越獎','1B',[n]));
+['江雋堯','譚泓升','田一苡','葉婧嵐'].forEach(n=>add('2022-2023','T3','學業卓越獎','1C',[n]));
+['陳臻妍','梁芯愨','李穎兒','田一芯'].forEach(n=>add('2022-2023','T3','學業卓越獎','1D',[n]));
+['李芷澄','黃湛然','楊云翕'].forEach(n=>add('2022-2023','T3','學業卓越獎','2A',[n]));
+['關柏思','鄺子喬','唐心悦'].forEach(n=>add('2022-2023','T3','學業卓越獎','2B',[n]));
+['錢梓沛','蕭苡蕎','黃心諾'].forEach(n=>add('2022-2023','T3','學業卓越獎','2C',[n]));
+['施博天'].forEach(n=>add('2022-2023','T3','學業卓越獎','2D',[n]));
+['鄭皓軒','馬梓銘'].forEach(n=>add('2022-2023','T3','學業卓越獎','3A',[n]));
+['梁芷悠','黃子衿'].forEach(n=>add('2022-2023','T3','學業卓越獎','3B',[n]));
+['何文瀚','林殷希','吳懿翹'].forEach(n=>add('2022-2023','T3','學業卓越獎','3C',[n]));
+['趙紫攸','蘇一元','邱日希'].forEach(n=>add('2022-2023','T3','學業卓越獎','3D',[n]));
+['李沛謙','黃雅賢'].forEach(n=>add('2022-2023','T3','學業卓越獎','4A',[n]));
+['林千瑜','李祉穎','吳嘉珩','顏駿然'].forEach(n=>add('2022-2023','T3','學業卓越獎','4B',[n]));
+['郭君澄','徐朗晞'].forEach(n=>add('2022-2023','T3','學業卓越獎','4C',[n]));
+['楊皓晴','張欣陽'].forEach(n=>add('2022-2023','T3','學業卓越獎','4D',[n]));
+['潘朗言'].forEach(n=>add('2022-2023','T3','學業卓越獎','5A',[n]));
+['歐陽天逸','馮學玟','吳恩霖'].forEach(n=>add('2022-2023','T3','學業卓越獎','5B',[n]));
+['鍾穎喬','林澔正','吳采霖','潘庭舟','潘晴晴'].forEach(n=>add('2022-2023','T3','學業卓越獎','5C',[n]));
+['盧梓霖','黃融'].forEach(n=>add('2022-2023','T3','學業卓越獎','5D',[n]));
+['黃家蕎','劉思延','駱瑋晴'].forEach(n=>add('2022-2023','T3','學業卓越獎','6A',[n]));
+['陳穎賢','韓展穎','老雋庭','羅梓瑤'].forEach(n=>add('2022-2023','T3','學業卓越獎','6B',[n]));
+['陳睿琛'].forEach(n=>add('2022-2023','T3','學業卓越獎','6C',[n]));
+['陳惟德','鄭文絢'].forEach(n=>add('2022-2023','T3','學業卓越獎','6D',[n]));
+
+// Year end 2022-2023
+add('2022-2023','Final','品學兼優獎','1B',['袁樂晴']);
+add('2022-2023','Final','品學兼優獎','1C',['田一苡']);
+add('2022-2023','Final','品學兼優獎','1D',['田一芯']);
+add('2022-2023','Final','品學兼優獎','2A',['李芷澄']);
+add('2022-2023','Final','品學兼優獎','2C',['蕭苡蕎']);
+add('2022-2023','Final','品學兼優獎','2D',['施博天']);
+add('2022-2023','Final','品學兼優獎','3A',['鄭皓軒','馬梓銘']);
+add('2022-2023','Final','品學兼優獎','3B',['黃子衿']);
+add('2022-2023','Final','品學兼優獎','4B',['林千瑜','吳嘉珩']);
+add('2022-2023','Final','品學兼優獎','4D',['張欣陽']);
+add('2022-2023','Final','品學兼優獎','5B',['馮學玟']);
+add('2022-2023','Final','品學兼優獎','5D',['盧梓霖','黃融']);
+add('2022-2023','Final','品學兼優獎','6A',['黃家蕎']);
+add('2022-2023','Final','品學兼優獎','6C',['陳睿琛']);
+add('2022-2023','Final','品學兼優獎','6D',['鄭文絢']);
+
+add('2022-2023','Final','獎學金','6B',['韓展穎','李卓燁','羅梓瑤']);
+add('2022-2023','Final','獎學金','6C',['陳睿琛','葉美詩']);
+add('2022-2023','Final','獎學金','6D',['陳惟德','鄭文絢']);
+
+// ===================== 2023-2024 =====================
+// T1 key awards
+add('2023-2024','T1','學科獎','1A',['林祐晞'],'中國語文/英文/數學/常識');
+add('2023-2024','T1','學科獎','1B',['江睿真'],'中國語文');
+add('2023-2024','T1','學科獎','1B',['張文懋'],'數學');
+add('2023-2024','T1','學科獎','2C',['田一苡'],'中國語文/英文/數學/常識');
+add('2023-2024','T1','學科獎','2D',['田一芯'],'中國語文/英文/常識');
+add('2023-2024','T1','學科獎','3A',['楊云翕'],'中國語文/數學');
+add('2023-2024','T1','學科獎','4A',['鄭皓軒'],'英文');
+add('2023-2024','T1','學科獎','4B',['梁芷悠'],'中國語文/英文/數學');
+add('2023-2024','T1','學科獎','5C',['吳嘉珩'],'中國語文/英文/數學/常識');
+add('2023-2024','T1','學科獎','5D',['張欣陽'],'中國語文/英文/常識');
+add('2023-2024','T1','學科獎','6B',['馮學玟'],'中國語文/常識');
+add('2023-2024','T1','學科獎','6C',['潘庭舟'],'中國語文');
+add('2023-2024','T1','學科獎','6D',['黃融'],'中國語文/常識');
+
+['陳昱成','鄒學仁','林祐晞','葉睎信'].forEach(n=>add('2023-2024','T1','學業卓越獎','1A',[n]));
+['江睿真','袁希旻','張文懋'].forEach(n=>add('2023-2024','T1','學業卓越獎','1B',[n]));
+['秋廣瞳','馮柏皓'].forEach(n=>add('2023-2024','T1','學業卓越獎','1C',[n]));
+['黃心悠'].forEach(n=>add('2023-2024','T1','學業卓越獎','1D',[n]));
+['劉思樂','梁樂行','吳韵琪','謝竣喬','袁樂晴'].forEach(n=>add('2023-2024','T1','學業卓越獎','2B',[n]));
+['譚泓升','田一苡'].forEach(n=>add('2023-2024','T1','學業卓越獎','2C',[n]));
+['陳臻妍','李穎兒','田一芯'].forEach(n=>add('2023-2024','T1','學業卓越獎','2D',[n]));
+['林詩甯','楊云翕'].forEach(n=>add('2023-2024','T1','學業卓越獎','3A',[n]));
+['周卓翹','黃湛然','黃紫芊'].forEach(n=>add('2023-2024','T1','學業卓越獎','3B',[n]));
+['陳朗逸','方一瑾','關柏思','蕭苡蕎','王烯童'].forEach(n=>add('2023-2024','T1','學業卓越獎','3D',[n]));
+['鄭皓軒'].forEach(n=>add('2023-2024','T1','學業卓越獎','4A',[n]));
+['梁芷悠','黃子衿'].forEach(n=>add('2023-2024','T1','學業卓越獎','4B',[n]));
+['何文瀚','王思清'].forEach(n=>add('2023-2024','T1','學業卓越獎','4C',[n]));
+['趙紫攸','譚博謙','董芷慇','楊一曦','邱日希'].forEach(n=>add('2023-2024','T1','學業卓越獎','4D',[n]));
+['霍珮瑜','徐朗晞'].forEach(n=>add('2023-2024','T1','學業卓越獎','5A',[n]));
+['張鎧廸','林千瑜','顏駿然'].forEach(n=>add('2023-2024','T1','學業卓越獎','5B',[n]));
+['吳嘉珩'].forEach(n=>add('2023-2024','T1','學業卓越獎','5C',[n]));
+['郭君澄','林嘉慧','李沛謙','張欣陽'].forEach(n=>add('2023-2024','T1','學業卓越獎','5D',[n]));
+['巫康朴','潘朗言'].forEach(n=>add('2023-2024','T1','學業卓越獎','6A',[n]));
+['馮學玟'].forEach(n=>add('2023-2024','T1','學業卓越獎','6B',[n]));
+['鍾穎喬','林澔正','吳采霖','潘庭舟','謝忞蓁'].forEach(n=>add('2023-2024','T1','學業卓越獎','6C',[n]));
+['盧梓霖','黃融'].forEach(n=>add('2023-2024','T1','學業卓越獎','6D',[n]));
+
+// T2 2023-2024
+add('2023-2024','T2','學科獎','1A',['林祐晞'],'中國語文/英文/數學');
+add('2023-2024','T2','學科獎','2C',['田一苡'],'英文/數學/常識');
+add('2023-2024','T2','學科獎','2D',['田一芯'],'中國語文/數學/常識');
+add('2023-2024','T2','學科獎','4A',['鄭皓軒'],'中國語文/英文/常識');
+add('2023-2024','T2','學科獎','4B',['梁芷悠'],'中國語文');
+add('2023-2024','T2','學科獎','5C',['吳嘉珩'],'中國語文/英文/常識');
+add('2023-2024','T2','學科獎','5D',['張欣陽'],'中國語文/英文/常識');
+add('2023-2024','T2','學科獎','6B',['馮學玟'],'中國語文/數學/常識');
+add('2023-2024','T2','學科獎','6D',['黃融'],'中國語文/英文');
+
+['林祐晞','王琋瑤'].forEach(n=>add('2023-2024','T2','學業卓越獎','1A',[n]));
+['江睿真','林千睿','張文懋'].forEach(n=>add('2023-2024','T2','學業卓越獎','1B',[n]));
+['秋廣瞳','馮柏皓','關芷欣'].forEach(n=>add('2023-2024','T2','學業卓越獎','1C',[n]));
+['歐陽曉樂','黃心悠'].forEach(n=>add('2023-2024','T2','學業卓越獎','1D',[n]));
+['林高演'].forEach(n=>add('2023-2024','T2','學業卓越獎','2A',[n]));
+['梁樂行','吳韵琪','袁樂晴'].forEach(n=>add('2023-2024','T2','學業卓越獎','2B',[n]));
+['江雋堯','譚泓升','田一苡','曾樂頤'].forEach(n=>add('2023-2024','T2','學業卓越獎','2C',[n]));
+['陳臻妍','田一芯'].forEach(n=>add('2023-2024','T2','學業卓越獎','2D',[n]));
+['林詩甯','唐心悦','楊云翕'].forEach(n=>add('2023-2024','T2','學業卓越獎','3A',[n]));
+['周卓翹','黃湛然','朱笑言'].forEach(n=>add('2023-2024','T2','學業卓越獎','3B',[n]));
+['劉柏希','李瑾熙'].forEach(n=>add('2023-2024','T2','學業卓越獎','3C',[n]));
+['方一瑾','關柏思','王烯童'].forEach(n=>add('2023-2024','T2','學業卓越獎','3D',[n]));
+['鄭皓軒','李樂欣'].forEach(n=>add('2023-2024','T2','學業卓越獎','4A',[n]));
+['梁芷悠','黃子衿'].forEach(n=>add('2023-2024','T2','學業卓越獎','4B',[n]));
+['林殷希','吳懿翹','王思清'].forEach(n=>add('2023-2024','T2','學業卓越獎','4C',[n]));
+['蔡裕正','楊一曦','邱日希'].forEach(n=>add('2023-2024','T2','學業卓越獎','4D',[n]));
+['霍珮瑜','李祉穎','徐朗晞'].forEach(n=>add('2023-2024','T2','學業卓越獎','5A',[n]));
+['林千瑜','顏駿然'].forEach(n=>add('2023-2024','T2','學業卓越獎','5B',[n]));
+['吳嘉珩','黃日熙'].forEach(n=>add('2023-2024','T2','學業卓越獎','5C',[n]));
+['郭君澄','李沛謙','張欣陽'].forEach(n=>add('2023-2024','T2','學業卓越獎','5D',[n]));
+['潘朗言'].forEach(n=>add('2023-2024','T2','學業卓越獎','6A',[n]));
+['歐陽天逸','馮學玟','吳恩霖','袁子硯'].forEach(n=>add('2023-2024','T2','學業卓越獎','6B',[n]));
+['鍾穎喬','林澔正','吳采霖','潘庭舟'].forEach(n=>add('2023-2024','T2','學業卓越獎','6C',[n]));
+['黃融'].forEach(n=>add('2023-2024','T2','學業卓越獎','6D',[n]));
+
+// T3 2023-2024
+add('2023-2024','T3','學科獎','1A',['林祐晞'],'中國語文/英文/數學/常識');
+add('2023-2024','T3','學科獎','1B',['張文懋'],'中國語文/數學');
+add('2023-2024','T3','學科獎','1C',['秋廣瞳'],'中國語文/數學');
+add('2023-2024','T3','學科獎','2C',['田一苡'],'中國語文');
+add('2023-2024','T3','學科獎','2D',['田一芯'],'英文/常識');
+add('2023-2024','T3','學科獎','3A',['楊云翕'],'中國語文/數學');
+add('2023-2024','T3','學科獎','4A',['鄭皓軒'],'中國語文/英文/常識');
+add('2023-2024','T3','學科獎','5C',['吳嘉珩'],'數學/常識');
+add('2023-2024','T3','學科獎','5D',['張欣陽'],'中國語文/英文');
+add('2023-2024','T3','學科獎','6B',['馮學玟'],'中國語文/常識');
+add('2023-2024','T3','學科獎','6D',['黃融'],'中國語文/常識');
+
+['陳昱成','鄒學仁','林祐晞','梁善嘉'].forEach(n=>add('2023-2024','T3','學業卓越獎','1A',[n]));
+['江睿真','林千睿','袁希旻','張文懋'].forEach(n=>add('2023-2024','T3','學業卓越獎','1B',[n]));
+['秋廣瞳','徐康琳'].forEach(n=>add('2023-2024','T3','學業卓越獎','1C',[n]));
+['林高演'].forEach(n=>add('2023-2024','T3','學業卓越獎','2A',[n]));
+['韓汶熹','吳韵琪','袁樂晴'].forEach(n=>add('2023-2024','T3','學業卓越獎','2B',[n]));
+['江雋堯','譚泓升','田一苡'].forEach(n=>add('2023-2024','T3','學業卓越獎','2C',[n]));
+['陳臻妍','田一芯','齊昱霖'].forEach(n=>add('2023-2024','T3','學業卓越獎','2D',[n]));
+['楊云翕'].forEach(n=>add('2023-2024','T3','學業卓越獎','3A',[n]));
+['李建樑','錢梓沛'].forEach(n=>add('2023-2024','T3','學業卓越獎','3B',[n]));
+['張可柔','劉柏希','黃心諾'].forEach(n=>add('2023-2024','T3','學業卓越獎','3C',[n]));
+['方一瑾','關柏思','蕭苡蕎','王烯童'].forEach(n=>add('2023-2024','T3','學業卓越獎','3D',[n]));
+['鄭皓軒'].forEach(n=>add('2023-2024','T3','學業卓越獎','4A',[n]));
+['梁芷悠','孫若谷','黃子衿'].forEach(n=>add('2023-2024','T3','學業卓越獎','4B',[n]));
+['何文瀚','李宗霖','吳懿翹','王思清'].forEach(n=>add('2023-2024','T3','學業卓越獎','4C',[n]));
+['湯玥兒','邱日希'].forEach(n=>add('2023-2024','T3','學業卓越獎','4D',[n]));
+['徐朗晞'].forEach(n=>add('2023-2024','T3','學業卓越獎','5A',[n]));
+['陳炬熹','張鎧廸','林千瑜','顏駿然','游子琪'].forEach(n=>add('2023-2024','T3','學業卓越獎','5B',[n]));
+['吳嘉珩'].forEach(n=>add('2023-2024','T3','學業卓越獎','5C',[n]));
+['郭君澄','李沛謙','張欣陽'].forEach(n=>add('2023-2024','T3','學業卓越獎','5D',[n]));
+['歐陽天逸','馮學玟','吳恩霖','袁子硯'].forEach(n=>add('2023-2024','T3','學業卓越獎','6B',[n]));
+['林澔正','李樂恩','潘庭舟'].forEach(n=>add('2023-2024','T3','學業卓越獎','6C',[n]));
+['盧梓霖','黃融','楊天欣'].forEach(n=>add('2023-2024','T3','學業卓越獎','6D',[n]));
+
+// Year end 2023-2024
+add('2023-2024','Final','品學兼優獎','1A',['梁善嘉']);
+add('2023-2024','Final','品學兼優獎','1B',['袁希旻','張文懋']);
+add('2023-2024','Final','品學兼優獎','2C',['田一苡']);
+add('2023-2024','Final','品學兼優獎','2D',['陳臻妍','田一芯']);
+add('2023-2024','Final','品學兼優獎','3D',['方一瑾','關柏思','蕭苡蕎']);
+add('2023-2024','Final','品學兼優獎','4A',['鄭皓軒']);
+add('2023-2024','Final','品學兼優獎','4B',['黃子衿']);
+add('2023-2024','Final','品學兼優獎','4C',['吳懿翹']);
+add('2023-2024','Final','品學兼優獎','5B',['林千瑜']);
+add('2023-2024','Final','品學兼優獎','5C',['吳嘉珩']);
+add('2023-2024','Final','品學兼優獎','5D',['張欣陽']);
+add('2023-2024','Final','品學兼優獎','6B',['馮學玟']);
+add('2023-2024','Final','品學兼優獎','6C',['林澔正']);
+add('2023-2024','Final','品學兼優獎','6D',['黃融']);
+
+add('2023-2024','Final','獎學金','6A',['巫康朴','潘朗言','楊正堯']);
+add('2023-2024','Final','獎學金','6B',['馮學玟','吳恩霖','楊正朗']);
+add('2023-2024','Final','獎學金','6C',['鍾穎喬','林澔正','李禮桓','吳采霖','潘庭舟','謝忞蓁']);
+add('2023-2024','Final','獎學金','6D',['蘇紫悠','曾譽壹']);
+
+// ===================== 2024-2025 =====================
+// T1
+add('2024-2025','T1','學科獎','1C',['馮國軒'],'英文/數學');
+add('2024-2025','T1','學科獎','1D',['張天行'],'英文');
+add('2024-2025','T1','學科獎','2A',['梁善嘉'],'中國語文');
+add('2024-2025','T1','學科獎','2A',['林祐晞'],'英文/數學');
+add('2024-2025','T1','學科獎','2B',['張文懋'],'中國語文/英文/數學');
+add('2024-2025','T1','學科獎','2C',['秋廣瞳'],'英文');
+add('2024-2025','T1','學科獎','3C',['吳韵琪'],'中國語文/數學');
+add('2024-2025','T1','學科獎','3C',['田一苡'],'常識');
+add('2024-2025','T1','學科獎','3D',['田一芯'],'中國語文/英文/常識');
+add('2024-2025','T1','學科獎','4A',['楊云翕'],'中國語文/數學');
+add('2024-2025','T1','學科獎','4B',['徐雅南'],'中國語文/英文');
+add('2024-2025','T1','學科獎','5D',['鄭皓軒'],'中國語文/英文');
+add('2024-2025','T1','學科獎','5D',['梁芷悠'],'英文');
+add('2024-2025','T1','學科獎','5D',['孫若谷'],'數學');
+add('2024-2025','T1','學科獎','6B',['林千瑜'],'中國語文/英文');
+add('2024-2025','T1','學科獎','6C',['吳嘉珩'],'中國語文/常識');
+add('2024-2025','T1','學科獎','6D',['張欣陽'],'中國語文/英文/常識');
+
+['謝鎬謙','柯承希'].forEach(n=>add('2024-2025','T1','學業卓越獎','1A',[n]));
+['陳宇驄','鄭樂庭','彭天佑','鄧駿優','楊芯瑋'].forEach(n=>add('2024-2025','T1','學業卓越獎','1B',[n]));
+['張天行','簡柏熙','王曰思'].forEach(n=>add('2024-2025','T1','學業卓越獎','1D',[n]));
+['林祐晞','梁善嘉','王琋瑤'].forEach(n=>add('2024-2025','T1','學業卓越獎','2A',[n]));
+['江睿真','林千睿','張文懋'].forEach(n=>add('2024-2025','T1','學業卓越獎','2B',[n]));
+['秋廣瞳','徐康琳','曾子洋'].forEach(n=>add('2024-2025','T1','學業卓越獎','2C',[n]));
+['黃心悠'].forEach(n=>add('2024-2025','T1','學業卓越獎','2D',[n]));
+['江雋堯'].forEach(n=>add('2024-2025','T1','學業卓越獎','3A',[n]));
+['袁樂晴'].forEach(n=>add('2024-2025','T1','學業卓越獎','3B',[n]));
+['劉淑涵','文千瑜','吳韵琪','田一苡'].forEach(n=>add('2024-2025','T1','學業卓越獎','3C',[n]));
+['陳樂之','劉芷希','譚泓升','田一芯'].forEach(n=>add('2024-2025','T1','學業卓越獎','3D',[n]));
+['林詩甯','王樂曦','楊云翕'].forEach(n=>add('2024-2025','T1','學業卓越獎','4A',[n]));
+['周卓翹','錢梓沛','黃紫芊','徐雅南'].forEach(n=>add('2024-2025','T1','學業卓越獎','4B',[n]));
+['方一瑾','關柏思','蕭苡蕎'].forEach(n=>add('2024-2025','T1','學業卓越獎','4D',[n]));
+['王樂謙','楊一曦','邱日希'].forEach(n=>add('2024-2025','T1','學業卓越獎','5A',[n]));
+['吳懿翹','楊詩韻'].forEach(n=>add('2024-2025','T1','學業卓越獎','5C',[n]));
+['鄭皓軒','張逸馳','梁芷悠','吳哲昕','孫若谷'].forEach(n=>add('2024-2025','T1','學業卓越獎','5D',[n]));
+['莊嘉瑜','徐朗晞'].forEach(n=>add('2024-2025','T1','學業卓越獎','6A',[n]));
+['陳炬熹','張鎧廸','林千瑜','顏駿然'].forEach(n=>add('2024-2025','T1','學業卓越獎','6B',[n]));
+['吳嘉珩'].forEach(n=>add('2024-2025','T1','學業卓越獎','6C',[n]));
+['郭君澄','李沛謙','張欣陽'].forEach(n=>add('2024-2025','T1','學業卓越獎','6D',[n]));
+
+// T2 2024-2025
+add('2024-2025','T2','學科獎','1C',['馮國軒'],'英文/數學');
+add('2024-2025','T2','學科獎','1D',['簡柏熙'],'中國語文/常識');
+add('2024-2025','T2','學科獎','2A',['梁善嘉'],'中國語文');
+add('2024-2025','T2','學科獎','2A',['林祐晞'],'數學');
+add('2024-2025','T2','學科獎','2B',['張文懋'],'中國語文/英文');
+add('2024-2025','T2','學科獎','3C',['吳韵琪'],'中國語文');
+add('2024-2025','T2','學科獎','3C',['田一苡'],'英文/常識');
+add('2024-2025','T2','學科獎','3D',['田一芯'],'中國語文/英文/數學/常識');
+add('2024-2025','T2','學科獎','4A',['楊云翕'],'中國語文/數學');
+add('2024-2025','T2','學科獎','5D',['鄭皓軒'],'英文/數學/常識');
+add('2024-2025','T2','學科獎','5D',['張逸馳'],'中國語文');
+add('2024-2025','T2','學科獎','6B',['林千瑜'],'數學');
+add('2024-2025','T2','學科獎','6C',['吳嘉珩'],'英文/數學/常識');
+add('2024-2025','T2','學科獎','6D',['張欣陽'],'中國語文/常識');
+
+['鄭雅文','施皓霖'].forEach(n=>add('2024-2025','T2','學業卓越獎','1A',[n]));
+['陳宇驄','彭天佑','鄧駿優','楊芯瑋'].forEach(n=>add('2024-2025','T2','學業卓越獎','1B',[n]));
+['馮國軒','高弋清'].forEach(n=>add('2024-2025','T2','學業卓越獎','1C',[n]));
+['李衍慕','譚綽鋒','王曰思'].forEach(n=>add('2024-2025','T2','學業卓越獎','1D',[n]));
+['陳昱成','何子諾','林祐晞','梁善嘉','麥綽軒'].forEach(n=>add('2024-2025','T2','學業卓越獎','2A',[n]));
+['江睿真','張文懋'].forEach(n=>add('2024-2025','T2','學業卓越獎','2B',[n]));
+['秋廣瞳'].forEach(n=>add('2024-2025','T2','學業卓越獎','2C',[n]));
+['歐陽曉樂','黃心悠'].forEach(n=>add('2024-2025','T2','學業卓越獎','2D',[n]));
+['江雋堯'].forEach(n=>add('2024-2025','T2','學業卓越獎','3A',[n]));
+['梁芯愨','岑若菲','袁樂晴'].forEach(n=>add('2024-2025','T2','學業卓越獎','3B',[n]));
+['吳韵琪','齊昱霖','田一苡'].forEach(n=>add('2024-2025','T2','學業卓越獎','3C',[n]));
+['陳樂之','田一芯','葉雅詩'].forEach(n=>add('2024-2025','T2','學業卓越獎','3D',[n]));
+['林詩甯','楊云翕'].forEach(n=>add('2024-2025','T2','學業卓越獎','4A',[n]));
+['錢梓沛','黃湛然','徐雅南'].forEach(n=>add('2024-2025','T2','學業卓越獎','4B',[n]));
+['李瑾熙'].forEach(n=>add('2024-2025','T2','學業卓越獎','4C',[n]));
+['方一瑾','關柏思','蕭苡蕎','王烯童'].forEach(n=>add('2024-2025','T2','學業卓越獎','4D',[n]));
+['楊一曦','邱日希'].forEach(n=>add('2024-2025','T2','學業卓越獎','5A',[n]));
+['何文瀚','胡瑋琛'].forEach(n=>add('2024-2025','T2','學業卓越獎','5B',[n]));
+['吳懿翹','楊詩韻'].forEach(n=>add('2024-2025','T2','學業卓越獎','5C',[n]));
+['鄭皓軒','張逸馳','梁芷悠','孫若谷'].forEach(n=>add('2024-2025','T2','學業卓越獎','5D',[n]));
+['徐朗晞'].forEach(n=>add('2024-2025','T2','學業卓越獎','6A',[n]));
+['陳熙汶','陳炬熹','許柏森','林千瑜','顏駿然'].forEach(n=>add('2024-2025','T2','學業卓越獎','6B',[n]));
+['吳嘉珩'].forEach(n=>add('2024-2025','T2','學業卓越獎','6C',[n]));
+['郭君澄','李沛謙','張欣陽'].forEach(n=>add('2024-2025','T2','學業卓越獎','6D',[n]));
+
+// T3 2024-2025
+add('2024-2025','T3','學科獎','1C',['馮國軒'],'中國語文/英文');
+add('2024-2025','T3','學科獎','1D',['王鎧澄'],'中國語文');
+add('2024-2025','T3','學科獎','2A',['梁善嘉'],'中國語文');
+add('2024-2025','T3','學科獎','2A',['林祐晞'],'數學/常識');
+add('2024-2025','T3','學科獎','2B',['江睿真'],'中國語文');
+add('2024-2025','T3','學科獎','3C',['吳韵琪'],'中國語文');
+add('2024-2025','T3','學科獎','3C',['田一苡'],'英文/數學');
+add('2024-2025','T3','學科獎','3D',['田一芯'],'中國語文/英文/數學/常識');
+add('2024-2025','T3','學科獎','4A',['楊云翕'],'中國語文/數學');
+add('2024-2025','T3','學科獎','4B',['周卓翹'],'數學');
+add('2024-2025','T3','學科獎','4D',['關柏思'],'中國語文/常識');
+add('2024-2025','T3','學科獎','4D',['方一瑾'],'數學');
+add('2024-2025','T3','學科獎','5D',['鄭皓軒'],'常識');
+add('2024-2025','T3','學科獎','5D',['張逸馳'],'英文');
+add('2024-2025','T3','學科獎','5D',['孫若谷'],'數學');
+add('2024-2025','T3','學科獎','6B',['林千瑜'],'英文/常識');
+add('2024-2025','T3','學科獎','6C',['吳嘉珩'],'中國語文/英文/數學/常識');
+add('2024-2025','T3','學科獎','6D',['張欣陽'],'中國語文');
+
+['鄭雅文','謝鎬謙','劉俙彤','施皓霖'].forEach(n=>add('2024-2025','T3','學業卓越獎','1A',[n]));
+['彭天佑','鄧駿優'].forEach(n=>add('2024-2025','T3','學業卓越獎','1B',[n]));
+['馮國軒','馬允澄'].forEach(n=>add('2024-2025','T3','學業卓越獎','1C',[n]));
+['張天行','王鎧澄'].forEach(n=>add('2024-2025','T3','學業卓越獎','1D',[n]));
+['鄒學仁','何子諾','林祐晞','梁善嘉','麥綽軒'].forEach(n=>add('2024-2025','T3','學業卓越獎','2A',[n]));
+['林千睿','冼頌雅','蘇彥希','鄧丞軒'].forEach(n=>add('2024-2025','T3','學業卓越獎','2B',[n]));
+['黃心悠'].forEach(n=>add('2024-2025','T3','學業卓越獎','2D',[n]));
+['曾樂頤'].forEach(n=>add('2024-2025','T3','學業卓越獎','3A',[n]));
+['袁樂晴'].forEach(n=>add('2024-2025','T3','學業卓越獎','3B',[n]));
+['劉淑涵','吳韵琪','齊昱霖','田一苡'].forEach(n=>add('2024-2025','T3','學業卓越獎','3C',[n]));
+['劉芷希','譚泓升','田一芯','葉雅詩'].forEach(n=>add('2024-2025','T3','學業卓越獎','3D',[n]));
+['林詩甯','楊云翕'].forEach(n=>add('2024-2025','T3','學業卓越獎','4A',[n]));
+['周卓翹','錢梓沛','孫慧詩','黃紫芊','葉浚熙'].forEach(n=>add('2024-2025','T3','學業卓越獎','4B',[n]));
+['方一瑾','關柏思','蕭苡蕎'].forEach(n=>add('2024-2025','T3','學業卓越獎','4D',[n]));
+['楊一曦','邱日希'].forEach(n=>add('2024-2025','T3','學業卓越獎','5A',[n]));
+['李宗霖'].forEach(n=>add('2024-2025','T3','學業卓越獎','5B',[n]));
+['趙紫攸','楊詩韻'].forEach(n=>add('2024-2025','T3','學業卓越獎','5C',[n]));
+['鄭皓軒','張逸馳','梁芷悠','吳哲昕','孫若谷'].forEach(n=>add('2024-2025','T3','學業卓越獎','5D',[n]));
+['莊嘉瑜','徐朗晞'].forEach(n=>add('2024-2025','T3','學業卓越獎','6A',[n]));
+['陳熙汶','林千瑜','顏駿然','陳映彤','游子琪'].forEach(n=>add('2024-2025','T3','學業卓越獎','6B',[n]));
+['吳嘉珩'].forEach(n=>add('2024-2025','T3','學業卓越獎','6C',[n]));
+['郭君澄','張欣陽'].forEach(n=>add('2024-2025','T3','學業卓越獎','6D',[n]));
+
+// Year end 2024-2025
+add('2024-2025','Final','品學兼優獎','1A',['施皓霖']);
+add('2024-2025','Final','品學兼優獎','1C',['馮國軒']);
+add('2024-2025','Final','品學兼優獎','1D',['張天行']);
+add('2024-2025','Final','品學兼優獎','2A',['梁善嘉']);
+add('2024-2025','Final','品學兼優獎','2B',['林千睿','張文懋']);
+add('2024-2025','Final','品學兼優獎','3C',['吳韵琪','田一苡']);
+add('2024-2025','Final','品學兼優獎','3D',['田一芯']);
+add('2024-2025','Final','品學兼優獎','4D',['方一瑾','關柏思','王烯童']);
+add('2024-2025','Final','品學兼優獎','5D',['鄭皓軒','張逸馳','孫若谷']);
+add('2024-2025','Final','品學兼優獎','6B',['林千瑜']);
+add('2024-2025','Final','品學兼優獎','6C',['吳嘉珩']);
+add('2024-2025','Final','品學兼優獎','6D',['張欣陽']);
+
+add('2024-2025','Final','獎學金','6A',['莊嘉瑜','徐朗晞']);
+add('2024-2025','Final','獎學金','6B',['陳熙汶','陳炬熹','林千瑜','顏駿然','陳映彤','楊皓晴']);
+add('2024-2025','Final','獎學金','6C',['朱曉臻','吳嘉珩']);
+add('2024-2025','Final','獎學金','6D',['郭君澄']);
+
+// ===================== 2025-2026 T1 =====================
+// (from document 1)
+add('2025-2026','T1','學科獎','1A',['王泆榣'],'中國語文');
+add('2025-2026','T1','學科獎','1A',['黃子軒'],'英文');
+add('2025-2026','T1','學科獎','1A',['梁鎧淳'],'數學');
+add('2025-2026','T1','學科獎','1A',['陳柏言','鄧亦晉'],'科學');
+add('2025-2026','T1','學科獎','1A',['王泆榣'],'人文');
+add('2025-2026','T1','學科獎','1B',['趙麟書'],'中國語文');
+add('2025-2026','T1','學科獎','1B',['陳俊熙'],'英文');
+add('2025-2026','T1','學科獎','1B',['邱彥鈞'],'數學');
+add('2025-2026','T1','學科獎','1B',['曾睿軒'],'科學');
+add('2025-2026','T1','學科獎','1B',['吳桐'],'人文');
+add('2025-2026','T1','學科獎','1C',['韓承恩'],'中國語文');
+add('2025-2026','T1','學科獎','1C',['汪得尔'],'英文');
+add('2025-2026','T1','學科獎','1C',['陳暟悠','單持達'],'數學');
+add('2025-2026','T1','學科獎','1C',['陳暟悠','梁芯'],'科學');
+add('2025-2026','T1','學科獎','1C',['陳暟悠','陳逸暄'],'人文');
+add('2025-2026','T1','學科獎','1D',['左安'],'中國語文');
+add('2025-2026','T1','學科獎','1D',['左安'],'英文');
+add('2025-2026','T1','學科獎','1D',['麥顥庭'],'數學');
+add('2025-2026','T1','學科獎','1D',['林洛詩'],'科學');
+add('2025-2026','T1','學科獎','1D',['洪樂熙'],'人文');
+add('2025-2026','T1','學科獎','2A',['錢梓祺'],'中國語文');
+add('2025-2026','T1','學科獎','2A',['周樂翹'],'英文');
+add('2025-2026','T1','學科獎','2A',['施皓霖'],'數學');
+add('2025-2026','T1','學科獎','2B',['陳宇驄'],'中國語文');
+add('2025-2026','T1','學科獎','2B',['鄧駿優'],'英文');
+add('2025-2026','T1','學科獎','2B',['楊芯瑋'],'數學');
+add('2025-2026','T1','學科獎','2C',['高弋清'],'中國語文');
+add('2025-2026','T1','學科獎','2C',['馮國軒'],'英文');
+add('2025-2026','T1','學科獎','2C',['康志睿'],'數學');
+add('2025-2026','T1','學科獎','2D',['簡柏熙'],'中國語文');
+add('2025-2026','T1','學科獎','2D',['張天行'],'英文');
+add('2025-2026','T1','學科獎','2D',['黃棨皓'],'數學');
+add('2025-2026','T1','學科獎','3A',['譚琬琋'],'中國語文');
+add('2025-2026','T1','學科獎','3A',['梁善嘉'],'英文');
+add('2025-2026','T1','學科獎','3A',['林千睿'],'數學');
+add('2025-2026','T1','學科獎','3B',['孫若玥'],'中國語文');
+add('2025-2026','T1','學科獎','3B',['江睿真'],'英文');
+add('2025-2026','T1','學科獎','3B',['林祐晞'],'數學');
+add('2025-2026','T1','學科獎','3C',['蘇彥希'],'中國語文');
+add('2025-2026','T1','學科獎','3C',['曾焯楠'],'英文');
+add('2025-2026','T1','學科獎','3C',['倫凱朗'],'數學');
+add('2025-2026','T1','學科獎','3D',['鄧丞軒'],'中國語文');
+add('2025-2026','T1','學科獎','3D',['徐康琳'],'英文');
+add('2025-2026','T1','學科獎','3D',['張文懋'],'數學');
+add('2025-2026','T1','學科獎','4A',['陳臻妍'],'中國語文');
+add('2025-2026','T1','學科獎','4A',['葉婧嵐'],'英文');
+add('2025-2026','T1','學科獎','4A',['劉思樂'],'數學');
+add('2025-2026','T1','學科獎','4A',['曾樂頤'],'科學');
+add('2025-2026','T1','學科獎','4A',['楊茵晴'],'人文');
+add('2025-2026','T1','學科獎','4B',['袁樂晴'],'中國語文');
+add('2025-2026','T1','學科獎','4B',['莫千雅'],'英文');
+add('2025-2026','T1','學科獎','4B',['梁樂行'],'數學');
+add('2025-2026','T1','學科獎','4B',['袁樂晴'],'科學');
+add('2025-2026','T1','學科獎','4B',['鍾日朗'],'人文');
+add('2025-2026','T1','學科獎','4C',['齊昱霖'],'中國語文');
+add('2025-2026','T1','學科獎','4C',['田一苡'],'英文/數學/科學/人文');
+add('2025-2026','T1','學科獎','4D',['田一芯'],'中國語文/英文/數學/科學');
+add('2025-2026','T1','學科獎','4D',['梁睿晴'],'人文');
+add('2025-2026','T1','學科獎','5A',['徐雅南'],'中國語文/數學');
+add('2025-2026','T1','學科獎','5A',['蕭苡蕎'],'英文');
+add('2025-2026','T1','學科獎','5B',['孫慧詩'],'中國語文');
+add('2025-2026','T1','學科獎','5B',['葉思言'],'英文');
+add('2025-2026','T1','學科獎','5B',['劉柏希'],'數學');
+add('2025-2026','T1','學科獎','5C',['李芷澄'],'中國語文');
+add('2025-2026','T1','學科獎','5C',['梁善姿'],'英文');
+add('2025-2026','T1','學科獎','5C',['周卓翹'],'數學');
+add('2025-2026','T1','學科獎','5D',['葉浚熙'],'中國語文/英文');
+add('2025-2026','T1','學科獎','5D',['李祈臻'],'數學');
+add('2025-2026','T1','學科獎','6A',['王思清'],'中國語文');
+add('2025-2026','T1','學科獎','6A',['高詩晴'],'英文');
+add('2025-2026','T1','學科獎','6A',['楊一曦'],'數學');
+add('2025-2026','T1','學科獎','6B',['董芷慇'],'中國語文');
+add('2025-2026','T1','學科獎','6B',['葉秀林'],'英文');
+add('2025-2026','T1','學科獎','6B',['李宗霖'],'數學');
+add('2025-2026','T1','學科獎','6C',['楊詩韻'],'中國語文/數學');
+add('2025-2026','T1','學科獎','6C',['余依庭'],'英文');
+add('2025-2026','T1','學科獎','6D',['鄭皓軒'],'中國語文');
+add('2025-2026','T1','學科獎','6D',['張逸馳'],'英文');
+add('2025-2026','T1','學科獎','6D',['孫若谷'],'數學');
+
+// 2025-2026 T1 Honour List
+['鄧亦晉'].forEach(n=>add('2025-2026','T1','學業卓越獎','1A',[n]));
+['陳暟悠','梁芯','呂希妤','單持達','汪得尔'].forEach(n=>add('2025-2026','T1','學業卓越獎','1C',[n]));
+['洪樂熙','彭希悅','曾子玹','黃日睎'].forEach(n=>add('2025-2026','T1','學業卓越獎','1D',[n]));
+['鄭雅文','周樂翹','柯承希'].forEach(n=>add('2025-2026','T1','學業卓越獎','2A',[n]));
+['陳宇驄','鄧駿優','楊芯瑋'].forEach(n=>add('2025-2026','T1','學業卓越獎','2B',[n]));
+['高弋清','馮國軒','康志睿'].forEach(n=>add('2025-2026','T1','學業卓越獎','2C',[n]));
+['簡柏熙','張天行','洪睿亨','譚綽鋒'].forEach(n=>add('2025-2026','T1','學業卓越獎','2D',[n]));
+['全安字','林千睿','譚琬琋','曾子洋'].forEach(n=>add('2025-2026','T1','學業卓越獎','3A',[n]));
+['江睿真','林祐晞','孫若玥'].forEach(n=>add('2025-2026','T1','學業卓越獎','3B',[n]));
+['秋廣瞳'].forEach(n=>add('2025-2026','T1','學業卓越獎','3C',[n]));
+['徐康琳','張文懋'].forEach(n=>add('2025-2026','T1','學業卓越獎','3D',[n]));
+['曾樂頤'].forEach(n=>add('2025-2026','T1','學業卓越獎','4A',[n]));
+['鍾日朗','袁樂晴'].forEach(n=>add('2025-2026','T1','學業卓越獎','4B',[n]));
+['吳韵琪','齊昱霖','田一苡','甄穎'].forEach(n=>add('2025-2026','T1','學業卓越獎','4C',[n]));
+['陳樂之','劉芷希','田一芯','葉雅詩'].forEach(n=>add('2025-2026','T1','學業卓越獎','4D',[n]));
+['蕭苡蕎','徐雅南'].forEach(n=>add('2025-2026','T1','學業卓越獎','5A',[n]));
+['孫慧詩','楊云翕'].forEach(n=>add('2025-2026','T1','學業卓越獎','5B',[n]));
+['周卓翹','林詩甯','李建樑','錢梓沛'].forEach(n=>add('2025-2026','T1','學業卓越獎','5C',[n]));
+['王烯童','黃紫芊'].forEach(n=>add('2025-2026','T1','學業卓越獎','5D',[n]));
+['王思清','楊一曦'].forEach(n=>add('2025-2026','T1','學業卓越獎','6A',[n]));
+['李宗霖','董芷慇'].forEach(n=>add('2025-2026','T1','學業卓越獎','6B',[n]));
+['楊詩韻'].forEach(n=>add('2025-2026','T1','學業卓越獎','6C',[n]));
+['鄭皓軒','張逸馳','梁芷悠','孫若谷','湯玥兒'].forEach(n=>add('2025-2026','T1','學業卓越獎','6D',[n]));
+
+// Good Conduct 2025-2026 T1
+add('2025-2026','T1','良好操行獎','1A',['曹希敏','鄧亦晉']);
+add('2025-2026','T1','良好操行獎','1B',['吳熙彤','黃煦柔']);
+add('2025-2026','T1','良好操行獎','1C',['陳暟悠','陳逸暄']);
+add('2025-2026','T1','良好操行獎','1D',['林洛詩','黃鈊悠']);
+add('2025-2026','T1','良好操行獎','2A',['梁尚琳','施皓霖']);
+add('2025-2026','T1','良好操行獎','2B',['鄧駿優','楊芯瑋']);
+add('2025-2026','T1','良好操行獎','2C',['陳孝真','高弋清']);
+add('2025-2026','T1','良好操行獎','2D',['陳臻希','張天行']);
+add('2025-2026','T1','良好操行獎','3A',['全安字','劉芊縈']);
+add('2025-2026','T1','良好操行獎','3B',['陳照中','林芯滺']);
+add('2025-2026','T1','良好操行獎','3C',['張芷茵','蘇彥希']);
+add('2025-2026','T1','良好操行獎','3D',['潘美辰','譚雅姸']);
+add('2025-2026','T1','良好操行獎','4A',['陳臻妍','戴敏潓']);
+add('2025-2026','T1','良好操行獎','4B',['賴曉萱','吳侃霓']);
+add('2025-2026','T1','良好操行獎','4C',['麥皓維','田一苡']);
+add('2025-2026','T1','良好操行獎','4D',['周子妤','洪瑜禧']);
+add('2025-2026','T1','良好操行獎','5A',['陳炫均','朱祉悦']);
+add('2025-2026','T1','良好操行獎','5B',['劉柏希','徐若曦']);
+add('2025-2026','T1','良好操行獎','5C',['林詩甯','李建樑']);
+add('2025-2026','T1','良好操行獎','5D',['李瑾熙','羅恩悅']);
+add('2025-2026','T1','良好操行獎','6A',['李蔚萱','吳芊希']);
+add('2025-2026','T1','良好操行獎','6B',['李宗霖','殷珮琋']);
+add('2025-2026','T1','良好操行獎','6C',['梁峻熙','楊詩韻']);
+add('2025-2026','T1','良好操行獎','6D',['鄭皓軒','張逸馳']);
+
+// Service 2025-2026 T1
+add('2025-2026','T1','服務獎','1A',['陳樂知','林弘翊']);
+add('2025-2026','T1','服務獎','1B',['區悅珩','曾睿軒']);
+add('2025-2026','T1','服務獎','1C',['陳揚昊','章知皓']);
+add('2025-2026','T1','服務獎','1D',['張殷悦','游朗然']);
+add('2025-2026','T1','服務獎','2A',['鄭雅文','洪禮匡']);
+add('2025-2026','T1','服務獎','2B',['趙樂天','莊博雅']);
+add('2025-2026','T1','服務獎','2C',['張芯蕎','李展樑']);
+add('2025-2026','T1','服務獎','2D',['江立宏','勞衍森']);
+add('2025-2026','T1','服務獎','3A',['歐陽曉樂','蔡巧怡']);
+add('2025-2026','T1','服務獎','3B',['林海辰','顏心懿']);
+add('2025-2026','T1','服務獎','3C',['陳鎬研','黃悅頤']);
+add('2025-2026','T1','服務獎','3D',['徐凱嵐','譚亮熙']);
+add('2025-2026','T1','服務獎','4A',['顏俊僖','曾樂頤']);
+add('2025-2026','T1','服務獎','4B',['陳孝知','楊承霖']);
+add('2025-2026','T1','服務獎','4C',['鄭得言','李柏謙']);
+add('2025-2026','T1','服務獎','4D',['鄉柏熙','葉卓瀅']);
+add('2025-2026','T1','服務獎','5A',['黃柏睿','施芊允']);
+add('2025-2026','T1','服務獎','5B',['劉柏希','只清予']);
+add('2025-2026','T1','服務獎','5C',['劉鍶泓','王語潼']);
+add('2025-2026','T1','服務獎','5D',['王承晉','葉浚熙']);
+add('2025-2026','T1','服務獎','6A',['丁子恩','黃浩庭']);
+add('2025-2026','T1','服務獎','6B',['中明','馮晉諾']);
+add('2025-2026','T1','服務獎','6C',['呂意德','譚博謙']);
+add('2025-2026','T1','服務獎','6D',['劉正灝','楊諾晴']);
+
+console.log(`Total records: ${RAW.length}`);
+
+// =========================================================
+// COMPUTED INDICES
+// =========================================================
+const byStudent = {};
+RAW.forEach(r => {
+  if(!byStudent[r.name]) byStudent[r.name] = [];
+  byStudent[r.name].push(r);
+});
+
+const YEARS = ['2021-2022','2022-2023','2023-2024','2024-2025','2025-2026'];
+const CLASSES = ['A','B','C','D'];
+const GRADES = ['1','2','3','4','5','6'];
+
+// Update header stats
+const allStudents = Object.keys(byStudent);
+document.getElementById('hstat-records').textContent = RAW.length.toLocaleString();
+document.getElementById('hstat-students').textContent = allStudents.length.toLocaleString();
+
+// =========================================================
+// TAB SWITCHING
+// =========================================================
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach((t,i)=>{
+    const ids = ['search','leaderboard','class','overview'];
+    t.classList.toggle('active', ids[i]===tab);
   });
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.getElementById('sec-'+tab).classList.add('active');
+  if(tab==='leaderboard') renderLeaderboard();
+  if(tab==='class') renderClass();
+  if(tab==='overview') renderOverview();
 }
 
-render();
+// =========================================================
+// SEARCH
+// =========================================================
+let searchTimeout;
+function onSearchInput() {
+  clearTimeout(searchTimeout);
+  const q = document.getElementById('searchInput').value.trim();
+  if(q.length >= 1) {
+    searchTimeout = setTimeout(()=>showSuggestions(q), 200);
+  } else {
+    document.getElementById('searchResults').innerHTML = '';
+  }
+}
+
+function showSuggestions(q) {
+  const matches = allStudents.filter(n=>n.includes(q)).sort((a,b)=>byStudent[b].length-byStudent[a].length).slice(0,20);
+  if(!matches.length) {
+    document.getElementById('searchResults').innerHTML = '<div class="empty"><div class="empty-icon">🔍</div>找不到符合的學生</div>';
+    return;
+  }
+  const html = `<div class="results-grid">`+
+    matches.map(n=>`<div class="result-card" onclick="showProfile('${n.replace(/'/g,"\\'")}')">
+      <span class="result-count">${byStudent[n].length}</span>
+      <div class="result-name">${n}</div>
+      <div class="result-meta">${getStudentYears(n)} · ${getStudentClasses(n)}</div>
+    </div>`).join('')+`</div>`;
+  document.getElementById('searchResults').innerHTML = html;
+  document.getElementById('profileArea').innerHTML = '';
+}
+
+function doSearch() {
+  const q = document.getElementById('searchInput').value.trim();
+  if(!q) return;
+  if(byStudent[q]) { showProfile(q); return; }
+  showSuggestions(q);
+}
+
+function clearSearch() {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('searchResults').innerHTML = '';
+  document.getElementById('profileArea').innerHTML = '';
+}
+
+function getStudentYears(name) {
+  const years = [...new Set(byStudent[name].map(r=>r.year))].sort();
+  return years.map(y=>y.replace('-20','-')).join(', ');
+}
+
+function getStudentClasses(name) {
+  const cls = [...new Set(byStudent[name].map(r=>r.cls))].sort();
+  return cls.join(', ');
+}
+
+function showProfile(name) {
+  const records = byStudent[name] || [];
+  if(!records.length) { document.getElementById('profileArea').innerHTML='<div class="empty">找不到學生資料</div>'; return; }
+
+  // Stats
+  const byType = {};
+  records.forEach(r=>{ byType[r.type]=(byType[r.type]||0)+1; });
+  const byYear = {};
+  records.forEach(r=>{ byYear[r.year]=(byYear[r.year]||0)+1; });
+
+  const academicCount = (byType['學科獎']||0);
+  const honourCount = (byType['學業卓越獎']||0);
+  const conductCount = (byType['良好操行獎']||0);
+  const serviceCount = (byType['服務獎']||0);
+  const readingCount = (byType['閱讀飛躍獎']||0)+(byType['閱讀獎']||0);
+  const specialCount = (byType['品學兼優獎']||0)+(byType['學科優異獎']||0)+(byType['傑出品德獎']||0);
+  const scholarshipCount = (byType['獎學金']||0);
+
+  // Class progression
+  const clsHistory = records.map(r=>r.year+' '+r.cls).filter((v,i,a)=>a.indexOf(v)===i).join(' → ');
+
+  // Timeline
+  const yearGroups = {};
+  records.forEach(r=>{
+    const key = r.year + '|' + r.term;
+    if(!yearGroups[key]) yearGroups[key] = {year:r.year, term:r.term, items:[]};
+    yearGroups[key].items.push(r);
+  });
+  const sortedKeys = Object.keys(yearGroups).sort((a,b)=>{
+    const [ya,ta]=a.split('|'), [yb,tb]=b.split('|');
+    const termOrder={T1:1,T2:2,T3:3,Final:4};
+    return ya.localeCompare(yb)||termOrder[ta]-termOrder[tb];
+  });
+
+  const termLabel = {T1:'第一學期',T2:'第二學期',T3:'第三學期',Final:'年終'};
+  const typeColors = {
+    '學科獎':'chip-academic',
+    '學業卓越獎':'chip-honour',
+    '良好操行獎':'chip-conduct',
+    '服務獎':'chip-service',
+    '閱讀飛躍獎':'chip-reading',
+    '閱讀獎':'chip-reading',
+    '品學兼優獎':'chip-special',
+    '學科優異獎':'chip-special',
+    '傑出品德獎':'chip-special',
+    '獎學金':'chip-scholarship',
+  };
+
+  const timelineHTML = sortedKeys.map(key=>{
+    const g = yearGroups[key];
+    const chips = g.items.map(r=>`<span class="award-chip ${typeColors[r.type]||'chip-academic'}">${r.type}${r.detail?' · '+r.detail.substring(0,8):''}</span>`).join('');
+    return `<div class="timeline-year">
+      <div class="timeline-year-label">${g.year} ${termLabel[g.term]||g.term} (${g.cls||g.items[0].cls})</div>
+      <div class="award-chips">${chips}</div>
+    </div>`;
+  }).join('');
+
+  const badges = [];
+  if(scholarshipCount>0) badges.push(`<span class="badge badge-gold">🎓 獎學金</span>`);
+  if(specialCount>0) badges.push(`<span class="badge badge-red">⭐ 品學兼優</span>`);
+  if(honourCount>=3) badges.push(`<span class="badge badge-sky">🏆 常上榜</span>`);
+  if(academicCount>=5) badges.push(`<span class="badge badge-jade">📖 學科達人</span>`);
+
+  document.getElementById('searchResults').innerHTML = '';
+  document.getElementById('profileArea').innerHTML = `
+  <div class="profile-card">
+    <div class="profile-header">
+      <div>
+        <div class="profile-name">${name}</div>
+        <div class="profile-sub">${clsHistory}</div>
+      </div>
+      <div class="profile-badges">${badges.join('')}</div>
+    </div>
+    <div class="profile-body">
+      <div class="profile-grid">
+        <div class="pstat"><div class="pstat-num">${records.length}</div><div class="pstat-label">總獎項次數</div></div>
+        <div class="pstat"><div class="pstat-num">${academicCount}</div><div class="pstat-label">學科獎</div></div>
+        <div class="pstat"><div class="pstat-num">${honourCount}</div><div class="pstat-label">學業卓越獎</div></div>
+        <div class="pstat"><div class="pstat-num">${conductCount}</div><div class="pstat-label">良好操行獎</div></div>
+        <div class="pstat"><div class="pstat-num">${serviceCount}</div><div class="pstat-label">服務獎</div></div>
+        <div class="pstat"><div class="pstat-num">${specialCount}</div><div class="pstat-label">年終/特別獎</div></div>
+        <div class="pstat"><div class="pstat-num">${scholarshipCount}</div><div class="pstat-label">獎學金</div></div>
+        <div class="pstat"><div class="pstat-num">${Object.keys(byYear).length}</div><div class="pstat-label">活躍學年</div></div>
+      </div>
+      <div class="section-title">📅 獲獎時間線</div>
+      <div class="timeline">${timelineHTML || '<div class="empty">暫無記錄</div>'}</div>
+    </div>
+  </div>`;
+}
+
+// =========================================================
+// LEADERBOARD
+// =========================================================
+let lbYear = 'all', lbType = 'all';
+
+function lbFilterYear(y, el) {
+  lbYear = y;
+  document.querySelectorAll('#lb-year-filter .filter-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  renderLeaderboard();
+}
+function lbFilterType(t, el) {
+  lbType = t;
+  document.querySelectorAll('#lb-type-filter .filter-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  renderLeaderboard();
+}
+
+function renderLeaderboard() {
+  let data = RAW;
+  if(lbYear!=='all') data = data.filter(r=>r.year===lbYear);
+  if(lbType!=='all') data = data.filter(r=>r.type.includes(lbType));
+
+  // Student counts
+  const counts = {};
+  data.forEach(r=>{ counts[r.name]=(counts[r.name]||0)+1; });
+  const sorted = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,50);
+
+  const rankEmoji = {1:'🥇',2:'🥈',3:'🥉'};
+  const html = sorted.map(([name,cnt],i)=>{
+    const cls = (i<3)?`top${i+1}`:'';
+    const years = lbYear==='all' ? `${[...new Set(data.filter(r=>r.name===name).map(r=>r.year))].length}個學年` : '';
+    return `<div class="lb-row" onclick="document.getElementById('searchInput').value='${name.replace(/'/g,"\\'")}';doSearch();switchTab('search')">
+      <div class="lb-rank ${cls}">${rankEmoji[i+1]||i+1}</div>
+      <div><div class="lb-name">${name}</div><div class="lb-meta">${getStudentClasses(name)} ${years}</div></div>
+      <div class="lb-count">${cnt}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('lb-list').innerHTML = html||'<div class="empty">暫無數據</div>';
+
+  // Type chart
+  const typeCounts = {};
+  data.forEach(r=>{ typeCounts[r.type]=(typeCounts[r.type]||0)+1; });
+  const typeEntries = Object.entries(typeCounts).sort((a,b)=>b[1]-a[1]);
+  const maxType = typeEntries[0]?.[1]||1;
+  const typeColors2 = ['#C9A84C','#8B1A1A','#2D6B4A','#1A4A7A','#9D4DBB','#C77B30','#4A7A5A','#2A4A8A'];
+  document.getElementById('lb-type-chart').innerHTML = `<div class="chart-title">獎項類型分佈</div>`+
+    typeEntries.map(([t,c],i)=>`
+    <div class="class-bar-row">
+      <div class="class-bar-label" style="width:100px;font-size:11px">${t}</div>
+      <div class="class-bar-track"><div class="class-bar-fill" style="width:${Math.round(c/maxType*100)}%;background:${typeColors2[i%typeColors2.length]}"></div></div>
+      <div class="class-bar-val">${c}</div>
+    </div>`).join('');
+
+  // Year chart
+  const yearCounts = {};
+  data.forEach(r=>{ yearCounts[r.year]=(yearCounts[r.year]||0)+1; });
+  const maxYear = Math.max(...Object.values(yearCounts),1);
+  document.getElementById('lb-year-chart').innerHTML = `<div class="chart-title">各學年獎項記錄數</div><div class="bar-chart">`+
+    YEARS.filter(y=>yearCounts[y]).map(y=>`
+    <div class="bar-col">
+      <div class="class-bar-fill bar-gold" style="height:${Math.round(yearCounts[y]/maxYear*130)}px;width:100%;border-radius:3px 3px 0 0" data-tip="${y}: ${yearCounts[y]}次"></div>
+      <div class="bar-col-label">${y.replace('20','').replace('-20','-')}</div>
+    </div>`).join('')+`</div>`;
+}
+
+// =========================================================
+// CLASS ANALYSIS
+// =========================================================
+let classYear = 'all', classGrade = 'all';
+
+function classFilterYear(y, el) {
+  classYear = y;
+  document.querySelectorAll('#class-year-filter .filter-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  renderClass();
+}
+function classFilterGrade(g, el) {
+  classGrade = g;
+  document.querySelectorAll('#class-grade-filter .filter-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  renderClass();
+}
+
+function renderClass() {
+  let data = RAW;
+  if(classYear!=='all') data = data.filter(r=>r.year===classYear);
+  if(classGrade!=='all') data = data.filter(r=>r.grade===parseInt(classGrade));
+
+  // Aggregate by class letter
+  const classCounts = {A:{},B:{},C:{},D:{}};
+  const types = ['學科獎','學業卓越獎','良好操行獎','服務獎','品學兼優獎'];
+  CLASSES.forEach(cl=>{
+    types.forEach(t=>{ classCounts[cl][t]=0; });
+    classCounts[cl].total=0;
+  });
+
+  data.forEach(r=>{
+    if(!CLASSES.includes(r.classLetter)) return;
+    classCounts[r.classLetter].total++;
+    if(classCounts[r.classLetter][r.type]!==undefined)
+      classCounts[r.classLetter][r.type]++;
+  });
+
+  const maxTotal = Math.max(...CLASSES.map(c=>classCounts[c].total),1);
+
+  // Overview cards
+  const classBarColors = {'學科獎':'bar-gold','學業卓越獎':'bar-sky','良好操行獎':'bar-jade','服務獎':'bar-red','品學兼優獎':'bar-gold'};
+  document.getElementById('class-overview-area').innerHTML = `
+  <div class="section-title">班別獎項總覽</div>
+  <div class="class-grid">
+    ${CLASSES.map(cl=>`
+    <div class="class-card">
+      <div class="class-label">${cl}班</div>
+      <div style="text-align:center;margin-bottom:12px">
+        <span style="font-family:'Noto Serif TC',serif;font-size:28px;font-weight:700;color:var(--gold-dark)">${classCounts[cl].total}</span>
+        <span style="font-size:11px;color:var(--muted);margin-left:4px">總記錄</span>
+      </div>
+      ${types.map(t=>`
+      <div class="class-bar-row">
+        <div class="class-bar-label">${t.replace('良好操行獎','操行獎').replace('品學兼優獎','品學兼優')}</div>
+        <div class="class-bar-track"><div class="class-bar-fill ${classBarColors[t]}" style="width:${classCounts[cl].total?Math.round(classCounts[cl][t]/classCounts[cl].total*100):0}%"></div></div>
+        <div class="class-bar-val">${classCounts[cl][t]}</div>
+      </div>`).join('')}
+    </div>`).join('')}
+  </div>`;
+
+  // Honour list by class
+  const honourByCls = {A:0,B:0,C:0,D:0};
+  data.filter(r=>r.type==='學業卓越獎').forEach(r=>{ if(CLASSES.includes(r.classLetter)) honourByCls[r.classLetter]++; });
+  const maxH = Math.max(...Object.values(honourByCls),1);
+  const hColors = {A:'#C9A84C',B:'#2D6B4A',C:'#1A4A7A',D:'#8B1A1A'};
+  document.getElementById('honour-chart').innerHTML = `<div class="bar-chart" style="height:120px">
+    ${CLASSES.map(cl=>`
+    <div class="bar-col">
+      <div style="background:${hColors[cl]};height:${Math.round(honourByCls[cl]/maxH*100)}px;width:100%;max-width:60px;border-radius:4px 4px 0 0;min-height:4px"></div>
+      <div style="font-family:'Noto Serif TC',serif;font-size:11px;font-weight:700;color:var(--gold-dark)">${honourByCls[cl]}</div>
+      <div class="bar-col-label">${cl}班</div>
+    </div>`).join('')}
+  </div>`;
+
+  // Detail table
+  const gradeKeys = classGrade==='all' ? GRADES : [classGrade];
+  const yearKeys = classYear==='all' ? YEARS : [classYear];
+
+  // Per grade comparison
+  let tableHTML = `<div class="chart-container"><table class="data-table"><thead><tr>
+    <th>年級</th><th>A班</th><th>B班</th><th>C班</th><th>D班</th><th>最優班</th>
+  </tr></thead><tbody>`;
+
+  gradeKeys.forEach(g=>{
+    const gc = {A:0,B:0,C:0,D:0};
+    data.filter(r=>r.grade===parseInt(g)&&['學科獎','學業卓越獎'].includes(r.type))
+      .forEach(r=>{ if(CLASSES.includes(r.classLetter)) gc[r.classLetter]++; });
+    const best = CLASSES.reduce((a,b)=>gc[a]>=gc[b]?a:b);
+    tableHTML += `<tr>
+      <td style="font-weight:700">${g}年級</td>
+      ${CLASSES.map(cl=>`<td style="${cl===best?'font-weight:700;color:var(--gold-dark)':''}">${gc[cl]}</td>`).join('')}
+      <td><span class="badge badge-gold">${best}班</span></td>
+    </tr>`;
+  });
+  tableHTML += `</tbody></table></div>`;
+  document.getElementById('class-detail-area').innerHTML = tableHTML;
+}
+
+// =========================================================
+// OVERVIEW
+// =========================================================
+function renderOverview() {
+  // Subject stats
+  const subjectCounts = {};
+  RAW.filter(r=>r.type==='學科獎'&&r.detail).forEach(r=>{
+    r.detail.split('/').forEach(s=>{
+      subjectCounts[s]=(subjectCounts[s]||0)+1;
+    });
+  });
+  const subEntries = Object.entries(subjectCounts).sort((a,b)=>b[1]-a[1]);
+  const maxSub = subEntries[0]?.[1]||1;
+  const subColors = ['#C9A84C','#2D6B4A','#1A4A7A','#8B1A1A','#9D4DBB','#C77B30'];
+  document.getElementById('subject-chart').innerHTML =
+    subEntries.map(([s,c],i)=>`
+    <div class="class-bar-row">
+      <div class="class-bar-label" style="width:80px">${s}</div>
+      <div class="class-bar-track"><div class="class-bar-fill" style="width:${Math.round(c/maxSub*100)}%;background:${subColors[i%subColors.length]}"></div></div>
+      <div class="class-bar-val">${c}</div>
+    </div>`).join('');
+
+  // Students of the Year
+  const sotyAll = RAW.filter(r=>r.type==='品學兼優獎');
+  const sotyMap = {};
+  sotyAll.forEach(r=>{ sotyMap[r.name]=(sotyMap[r.name]||[]);sotyMap[r.name].push(r.year+' '+r.cls); });
+  const sotyList = Object.entries(sotyMap).sort((a,b)=>b[1].length-a[1].length);
+  document.getElementById('soty-list').innerHTML = sotyList.map(([n,yrs],i)=>`
+  <div class="lb-row" onclick="document.getElementById('searchInput').value='${n.replace(/'/g,"\\'")}';doSearch();switchTab('search')">
+    <div class="lb-rank ${i<3?'top'+(i+1):''}">${i+1}</div>
+    <div><div class="lb-name">${n}</div><div class="lb-meta">${yrs.join('｜')}</div></div>
+    <div class="lb-count">${yrs.length}</div>
+  </div>`).join('');
+
+  // Year end winners leaderboard
+  const yearEndTypes = ['品學兼優獎','學科優異獎'];
+  const yeCounts = {};
+  RAW.filter(r=>yearEndTypes.includes(r.type)).forEach(r=>{ yeCounts[r.name]=(yeCounts[r.name]||0)+1; });
+  const yeSorted = Object.entries(yeCounts).sort((a,b)=>b[1]-a[1]).slice(0,30);
+  document.getElementById('yearend-list').innerHTML = yeSorted.map(([n,c],i)=>`
+  <div class="lb-row" onclick="document.getElementById('searchInput').value='${n.replace(/'/g,"\\'")}';doSearch();switchTab('search')">
+    <div class="lb-rank ${i<3?'top'+(i+1):''}">${i+1}</div>
+    <div><div class="lb-name">${n}</div><div class="lb-meta">${getStudentYears(n)}</div></div>
+    <div class="lb-count">${c}</div>
+  </div>`).join('');
+
+  // Scholarship
+  const schAll = RAW.filter(r=>r.type==='獎學金');
+  document.getElementById('scholarship-list').innerHTML = schAll.map(r=>`
+  <div class="lb-row" onclick="document.getElementById('searchInput').value='${r.name.replace(/'/g,"\\'")}';doSearch();switchTab('search')">
+    <div style="width:32px;font-size:16px;text-align:center">🎓</div>
+    <div><div class="lb-name">${r.name}</div><div class="lb-meta">${r.year} · ${r.cls}</div></div>
+  </div>`).join('');
+}
+
+// =========================================================
+// INIT
+// =========================================================
+renderLeaderboard();
 </script>
 </body>
 </html>
